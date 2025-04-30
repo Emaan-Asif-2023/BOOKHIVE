@@ -42,6 +42,7 @@ def initdb():
     return render_template("initdb.html", table_data=table_data)
 
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -67,11 +68,30 @@ def register():
             return render_template("register.html", message="Username or email already exists.", category="error")
         finally:
             conn.close()
-        
 
-        return render_template("register.html", message="Registered successfully!", category="success")
+        return redirect("/home")
+        
+        return render_template("register.html", message="Registered successfully!", category="success") #won't run because need to redirect
 
     return render_template("register.html")
+
+@app.route("/") #don't remove this single back slash it's needed to run
+def home():
+    return redirect("/register")  
+
+@app.route("/login", methods=["GET", "POST"]) #write backend for login
+def login():
+    if request.method == "POST":
+        
+        pass
+    return render_template("login.html")
+
+@app.route("/home", methods=["GET", "POST"]) #write backend for home
+def homepage():
+    if request.method == "POST":
+        
+        pass
+    return render_template("home.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
