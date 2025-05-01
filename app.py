@@ -24,9 +24,7 @@ def init_db():
         conn.close()
 
 #Logo page
-@app.route('/')
-def splash():
-    return render_template("logo.html")
+
 
 @app.route("/initdb")
 def run_initdb():
@@ -50,6 +48,9 @@ def run_initdb():
     
     return render_template("initdb.html", table_data=table_data)
 
+@app.route('/')
+def splash():
+    return render_template("logo.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
