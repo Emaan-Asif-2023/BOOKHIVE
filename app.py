@@ -126,7 +126,6 @@ def all_users():
     conn.close()
     return render_template("allusers.html", users=users)
 
-
 @app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
 def edit_cover(bookname):
     if request.method == "POST":
@@ -140,8 +139,11 @@ def edit_cover(bookname):
         conn.close()
         return redirect("/home")
 
+
     return render_template("edit_cover.html", bookname=bookname)
 
+    
+    #return render_template("edit_cover.html", bookname=bookname)
 
 
 if __name__ == "__main__":
