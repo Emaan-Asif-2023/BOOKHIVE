@@ -5,6 +5,10 @@ from werkzeug.security import generate_password_hash
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+#login_manager = LoginManager()
+#login_manager.init_app(app)
+#login_manager.login_view = "login"
+
 DATABASE = "dbprojectNew.db"
 
 def get_db_connection():
@@ -18,6 +22,11 @@ def init_db():
         with open("schema.sql", "r") as f:
             conn.executescript(f.read())
         conn.close()
+
+#Logo page
+@app.route('/')
+def splash():
+    return render_template("logo.html")
 
 @app.route("/initdb")
 def run_initdb():
@@ -116,6 +125,22 @@ def all_users():
     users = cursor.fetchall()
     conn.close()
     return render_template("allusers.html", users=users)
+
+
+@app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
+def edit_cover(bookname):
+    if request.method == "POST":
+        new_url = request.form["cover_url"]
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE Books SET cover_url = ? WHERE bookname = ?",
+            (new_url, bookname)
+        )
+        conn.commit()
+        conn.close()
+        return redirect("/home")
+
+    return render_template("edit_cover.html", bookname=bookname)
 
 
 
