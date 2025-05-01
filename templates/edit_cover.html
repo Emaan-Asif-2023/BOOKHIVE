@@ -2,3 +2,6 @@
     <input type="url" name="cover_url" placeholder="New cover URL">
     <button type="submit">Update Cover</button>
 </form>
+
+<h2>{{ book.bookname }}</h2>
+<img src="{{ book.cover_url }}" alt="Cover for {{ book.bookname }}" style="width:200px;">
