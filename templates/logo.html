@@ -2,9 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>Welcome</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to right, #f5f5dc, #fdf6f0); /* beige to light pink tint */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .logo-container {
+      text-align: center;
+    }
+
+    .logo {
+      width: 180px;
+      animation: pulse 2s infinite ease-in-out;
+      filter: drop-shadow(2px 4px 6px rgba(165, 42, 42, 0.3)); /* soft brown shadow */
+    }
+
+    .title {
+      margin-top: 20px;
+      font-size: 24px;
+      color: #d2691e; /* warm brown/orange */
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    /* Loading-style pulsing animation */
+    @keyframes pulse {
+      0%   { transform: scale(1); opacity: 0.9; }
+      50%  { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.9; }
+    }
+  </style>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 7000);
+  </script>
 </head>
 <body>
-$END$
+  <div class="logo-container">
+    <img src="{{ url_for('static', filename='bookHiveCnvalogo.PNG') }}" alt="Book Hive Logo" class="logo">
+    <div class="title">BOOK HIVE</div>
+  </div>
 </body>
 </html>
