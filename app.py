@@ -117,7 +117,20 @@ def all_users():
     conn.close()
     return render_template("allusers.html", users=users)
 
-
+@app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
+def edit_cover(bookname):
+    if request.method == "POST":
+        new_url = request.form["cover_url"]
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE Books SET cover_url = ? WHERE bookname = ?",
+            (new_url, bookname)
+        )
+        conn.commit()
+        conn.close()
+        return redirect("/home")
+    
+    return render_template("edit_cover.html", bookname=bookname)
 
 if __name__ == "__main__":
     app.run(debug=True)
