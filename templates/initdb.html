@@ -9,7 +9,8 @@
     <h1>Database Initialized Successfully!</h1>
     
     {% for table, rows in table_data.items() %}
-        <h2>{{ table }}</h2>
+    <h2>{{ table }}</h2>
+    {% if rows %}
         <table border="1">
             <thead>
                 <tr>
@@ -28,6 +29,9 @@
                 {% endfor %}
             </tbody>
         </table>
-    {% endfor %}
+    {% else %}
+        <p>No data in this table.</p>
+    {% endif %}
+{% endfor %}
 </body>
 </html>

@@ -14,7 +14,7 @@ CREATE TABLE Books (
     year INTEGER,
     description TEXT,
     averageRating REAL DEFAULT 0,
-    noOfRatings INTEGER DEFAULT 0
+    noOfRatings INTEGER DEFAULT 0,
     cover_url TEXT
 );
 DROP TABLE IF EXISTS Ratings;
