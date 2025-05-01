@@ -20,7 +20,7 @@ def init_db():
         conn.close()
 
 @app.route("/initdb")
-def initdb():
+def run_initdb():
     init_db()
 
     conn = get_db_connection()
