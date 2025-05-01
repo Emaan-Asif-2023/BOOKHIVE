@@ -85,9 +85,11 @@ def register():
 
     return render_template("register.html")
 
-@app.route("/") #don't remove this single back slash it's needed to run
-def home():
-    return redirect("/register")  
+#@app.route("/") #don't remove this single back slash it's needed to run
+#def home():
+    #return redirect("/register")
+    # commented this out as i felt this in unnecessary... / back alash will run
+    #the logo then login or regitser page will appear..
 
 @app.route("/login", methods=["GET", "POST"]) #write backend for login
 def login():
