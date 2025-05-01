@@ -86,49 +86,38 @@ def login():
         pass
     return render_template("login.html")
 
-@app.route("/home", methods=["GET", "POST"])
+@app.route("/home", methods=["GET", "POST"]) #write backend for home
 def homepage():
-    conn = get_db_connection()
-    
-    # Handle POST requests (e.g., search/filter submissions)
     if request.method == "POST":
-        search_query = request.form.get("search", "").strip()
         
-        if search_query:
-            books = conn.execute("""
-                SELECT * FROM Books 
-                WHERE bookname LIKE ? OR author LIKE ?
-                ORDER BY bookname
-            """, (f"%{search_query}%", f"%{search_query}%")).fetchall()
-        else:
-            books = conn.execute("SELECT * FROM Books").fetchall()
-    # Handle GET requests (normal page load)
-    else:
-        books = conn.execute("""
-            SELECT bookname, author, genre, 
-                   COALESCE(cover_url, '/static/default-cover.jpg') AS safe_cover
-            FROM Books
-            ORDER BY bookname
-        """).fetchall()
-    
-    conn.close()
-    
-    return render_template("home.html", books=books)
+        pass
+    return render_template("home.html")
 
-@app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
-def edit_cover(bookname):
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    users = []
     if request.method == "POST":
-        new_url = request.form["cover_url"]
+        search_term = request.form.get("search_term")
+
         conn = get_db_connection()
-        conn.execute(
-            "UPDATE Books SET cover_url = ? WHERE bookname = ?",
-            (new_url, bookname)
+        cursor = conn.execute(
+            "SELECT username, email FROM Users WHERE username LIKE ? OR email LIKE ?",
+            (f"%{search_term}%", f"%{search_term}%")
         )
-        conn.commit()
+        users = cursor.fetchall()
         conn.close()
-        return redirect("/home")
-    
-    return render_template("edit_cover.html", bookname=bookname)
+
+    return render_template("search.html", users=users)
+
+@app.route("/allusers")
+def all_users():
+    conn = get_db_connection()
+    cursor = conn.execute("SELECT * FROM Users")
+    users = cursor.fetchall()
+    conn.close()
+    return render_template("allusers.html", users=users)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
