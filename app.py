@@ -144,6 +144,15 @@ def edit_cover(bookname):
 
     
     #return render_template("edit_cover.html", bookname=bookname)
+@app.route('/book/<bookname>')
+def show_book(bookname):
+    conn = get_db_connection()
+    book = conn.execute('SELECT * FROM Books WHERE bookname = ?', (bookname,)).fetchone()
+    conn.close()
+    if book is None:
+        return "Book not found", 404
+    return render_template('bookpage.html', book=book)
+
 
 
 if __name__ == "__main__":

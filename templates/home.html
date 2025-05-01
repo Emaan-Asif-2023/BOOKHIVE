@@ -1,11 +1,8 @@
-
 {% extends "base.html" %}
+
 {% block content %}
 <p>This is the home page.</p>
-{% endblock %}
 
-
-{% block content %}
 <!-- Search Form -->
 <form method="POST" class="search-box">
     <input type="text" name="search" placeholder="Search books...">
@@ -29,7 +26,6 @@
             {% endif %}
         </div>
         
-        <!-- Add interactive elements -->
         <div class="book-actions">
             <a href="/book/{{ book['bookname'] }}" class="btn-view">Details</a>
         </div>
