@@ -1,11 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-        <div>This is the home page</div>
-    
-</body>
-</html>
+{% block content %}
+<!-- Search Form -->
+<form method="POST" class="search-box">
+    <input type="text" name="search" placeholder="Search books...">
+    <button type="submit">Search</button>
+</form>
+
+<!-- Book Grid -->
+<div class="book-grid">
+    {% for book in books %}
+    <div class="book-card">
+        <img src="{{ book['safe_cover'] }}" 
+             onerror="this.src='/static/default-cover.jpg'"
+             class="book-cover"
+             alt="{{ book['bookname'] }}">
+        
+        <div class="book-details">
+            <h3>{{ book['bookname'] }}</h3>
+            <p class="author">{{ book['author'] }}</p>
+            {% if book['genre'] %}
+            <span class="genre-badge">{{ book['genre'] }}</span>
+            {% endif %}
+        </div>
+        
+        <!-- Add interactive elements -->
+        <div class="book-actions">
+            <a href="/book/{{ book['bookname'] }}" class="btn-view">Details</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

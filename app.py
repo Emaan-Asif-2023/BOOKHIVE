@@ -86,12 +86,49 @@ def login():
         pass
     return render_template("login.html")
 
-@app.route("/home", methods=["GET", "POST"]) #write backend for home
+@app.route("/home", methods=["GET", "POST"])
 def homepage():
+    conn = get_db_connection()
+    
+    # Handle POST requests (e.g., search/filter submissions)
     if request.method == "POST":
+        search_query = request.form.get("search", "").strip()
         
-        pass
-    return render_template("home.html")
+        if search_query:
+            books = conn.execute("""
+                SELECT * FROM Books 
+                WHERE bookname LIKE ? OR author LIKE ?
+                ORDER BY bookname
+            """, (f"%{search_query}%", f"%{search_query}%")).fetchall()
+        else:
+            books = conn.execute("SELECT * FROM Books").fetchall()
+    # Handle GET requests (normal page load)
+    else:
+        books = conn.execute("""
+            SELECT bookname, author, genre, 
+                   COALESCE(cover_url, '/static/default-cover.jpg') AS safe_cover
+            FROM Books
+            ORDER BY bookname
+        """).fetchall()
+    
+    conn.close()
+    
+    return render_template("home.html", books=books)
+
+@app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
+def edit_cover(bookname):
+    if request.method == "POST":
+        new_url = request.form["cover_url"]
+        conn = get_db_connection()
+        conn.execute(
+            "UPDATE Books SET cover_url = ? WHERE bookname = ?",
+            (new_url, bookname)
+        )
+        conn.commit()
+        conn.close()
+        return redirect("/home")
+    
+    return render_template("edit_cover.html", bookname=bookname)
 
 if __name__ == "__main__":
     app.run(debug=True)
