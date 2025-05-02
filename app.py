@@ -317,6 +317,7 @@ def remove_from_list():
         conn.close()
 
     return redirect("/reading_lists")
+
 @app.route("/catalogue")
 def catalogue():
     conn = get_db_connection()
@@ -371,11 +372,13 @@ def rate():
 
 @app.route('/recommendations')
 def recommendations():
-    if 'user_id' not in session:
+    if 'username' not in session:
         return redirect('/login')
 
-    user_id = session['user_id']
-    conn = sqlite3.connect('yourdb.db')
+    user_id = session['username']
+    import os
+    conn = sqlite3.connect(os.path.join(os.path.dirname(__file__), 'yourdb.db'))
+
     cursor = conn.cursor()
 
     # Step 1: Find genres the user likes most
@@ -406,7 +409,56 @@ def recommendations():
     return render_template('recommendations.html', books=recommendations)
 
 
-
+@app.route('/profile')
+def profile():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = session['username']
+    
+    try:
+        conn = get_db_connection()
+        
+        # Get user info
+        user = conn.execute('SELECT * FROM Users WHERE username = ?', (username,)).fetchone()
+        if not user:
+            return redirect(url_for('login'))
+        
+        # Get user stats
+        books_read = conn.execute('SELECT COUNT(*) FROM ReadBooksList WHERE username = ?', (username,)).fetchone()[0]
+        wishlist_count = conn.execute('SELECT COUNT(*) FROM WishlistBooks WHERE username = ?', (username,)).fetchone()[0]
+        currently_reading = conn.execute('SELECT COUNT(*) FROM CurrentlyReadingBooks WHERE username = ?', (username,)).fetchone()[0]
+        
+        # Get recent reviews
+        reviews = conn.execute('''
+            SELECT b.bookname, b.author, r.review 
+            FROM Reviews r
+            JOIN Books b ON r.bookname = b.bookname
+            WHERE r.username = ?
+            ORDER BY r.rowid DESC
+            LIMIT 3
+        ''', (username,)).fetchall()
+        
+        # Get followers/following count
+        followers = conn.execute('SELECT COUNT(*) FROM Followers WHERE followee = ?', (username,)).fetchone()[0]
+        following = conn.execute('SELECT COUNT(*) FROM Followers WHERE follower = ?', (username,)).fetchone()[0]
+        
+        conn.close()
+        
+        return render_template('profile.html',
+        username=user['username'],
+        email=user['email'],
+        description=user['description'],
+        books_read=user['noOfBooksRead'],
+        wishlist_count=wishlist_count,
+        currently_reading=currently_reading,
+        reviews=reviews,
+        followers=followers,
+        following=following)
+    
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return "Error loading profile", 500
 
 if __name__ == "__main__":
     app.run(debug=True)
