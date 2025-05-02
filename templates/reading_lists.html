@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reading Lists</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>My Reading Lists</h2>
+
+        <!-- Display error or success messages -->
+        {% if message %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <!-- Form to add a book to a list -->
+        <form method="POST" action="/add_to_list">
+            <input name="bookname" placeholder="Book name" required>
+            <select name="list_type">
+                <option value="read">Read</option>
+                <option value="reading">Currently Reading</option>
+                <option value="wishlist">Read Later</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+
+        <!-- Read Books -->
+        <h3>Read Books</h3>
+        <ul>
+            {% for book in read %}
+            <li>
+                {{ book.bookname }}
+                <form method="POST" action="/remove_from_list" style="display:inline;">
+                    <input type="hidden" name="bookname" value="{{ book.bookname }}">
+                    <input type="hidden" name="list_type" value="read">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Currently Reading -->
+        <h3>Currently Reading</h3>
+        <ul>
+            {% for book in reading %}
+            <li>
+                {{ book.bookname }}
+                <form method="POST" action="/remove_from_list" style="display:inline;">
+                    <input type="hidden" name="bookname" value="{{ book.bookname }}">
+                    <input type="hidden" name="list_type" value="reading">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Wishlist -->
+        <h3>Read Later (Wishlist)</h3>
+        <ul>
+            {% for book in wishlist %}
+            <li>
+                {{ book.bookname }}
+                <form method="POST" action="/remove_from_list" style="display:inline;">
+                    <input type="hidden" name="bookname" value="{{ book.bookname }}">
+                    <input type="hidden" name="list_type" value="wishlist">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

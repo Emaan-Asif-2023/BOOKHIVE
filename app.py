@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, request, render_template, redirect
 from werkzeug.security import generate_password_hash
+from flask import session
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -48,10 +49,13 @@ def run_initdb():
     
     return render_template("initdb.html", table_data=table_data)
 
-# @app.route('/')
-# def splash():
-#     return render_template("logo.html")  commenting out for while because the logo display takes time and we are in development
+@app.route('/')
+def splash():
+     return render_template("logo.html")  #commenting out for while because the logo display takes time and we are in development
 
+#@app.route("/")
+#def home():
+#    return redirect("/register")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -85,18 +89,29 @@ def register():
 
     return render_template("register.html")
 
-@app.route("/") #don't remove this single back slash it's needed to run
-def home():
-    return redirect("/register")
-    # commented this out as i felt this in unnecessary... / back alash will run
-    # the logo then login or regitser page will appear..
-
 @app.route("/login", methods=["GET", "POST"]) #write backend for login
 def login():
     if request.method == "POST":
-        
-        pass
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        conn = get_db_connection()
+        user = conn.execute("SELECT * FROM Users WHERE username = ? AND email = ?", (username, email)).fetchone()
+        conn.close()
+
+        if user and user["password"] == password:
+            session["username"] = user["username"]
+            return redirect("/home")
+        else:
+            return render_template("login.html", message="Invalid credentials", category="error")
+
     return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 
 @app.route("/home")
@@ -172,7 +187,131 @@ def show_book(bookname):
         return "Book not found", 404
     return render_template('bookpage.html', book=book)
 
+@app.route("/reading_lists", methods=["GET", "POST"])
+def reading_lists():
+    if "username" not in session:
+        return redirect("/login")
 
+    username = session["username"]
+    conn = get_db_connection()
+
+    # Fetch books for each list
+    read = conn.execute(
+        "SELECT B.bookname FROM ReadBooksList R JOIN Books B ON R.bookname = B.bookname WHERE R.username = ?",
+        (username,)
+    ).fetchall()
+
+    reading = conn.execute(
+        "SELECT B.bookname FROM CurrentlyReadingBooks C JOIN Books B ON C.bookname = B.bookname WHERE C.username = ?",
+        (username,)
+    ).fetchall()
+
+    wishlist = conn.execute(
+        "SELECT B.bookname FROM WishlistBooks W JOIN Books B ON W.bookname = B.bookname WHERE W.username = ?",
+        (username,)
+    ).fetchall()
+
+    conn.close()
+
+    return render_template("reading_lists.html", read=read, reading=reading, wishlist=wishlist)
+
+@app.route("/add_to_list", methods=["POST"])
+def add_to_list():
+    if "username" not in session:
+        return redirect("/login")
+
+    username = session["username"]
+    bookname = request.form.get("bookname")
+    list_type = request.form.get("list_type")
+
+    # Table map for lists
+    table_map = {
+        "read": "ReadBooksList",
+        "reading": "CurrentlyReadingBooks",
+        "wishlist": "WishlistBooks"
+    }
+
+    if list_type not in table_map:
+        return "Invalid list type", 400
+
+    # Check if the book exists in the Books table
+    conn = get_db_connection()
+    book_exists = conn.execute(
+        "SELECT 1 FROM Books WHERE bookname = ? LIMIT 1", (bookname,)
+    ).fetchone()
+
+    # If book doesn't exist, fetch the lists and return an error message
+    if not book_exists:
+        # Fetch books for each list to pass them to the template
+        read = conn.execute(
+            "SELECT B.bookname FROM ReadBooksList R JOIN Books B ON R.bookname = B.bookname WHERE R.username = ?",
+            (username,)
+        ).fetchall()
+
+        reading = conn.execute(
+            "SELECT B.bookname FROM CurrentlyReadingBooks C JOIN Books B ON C.bookname = B.bookname WHERE C.username = ?",
+            (username,)
+        ).fetchall()
+
+        wishlist = conn.execute(
+            "SELECT B.bookname FROM WishlistBooks W JOIN Books B ON W.bookname = B.bookname WHERE W.username = ?",
+            (username,)
+        ).fetchall()
+
+        conn.close()
+        return render_template("reading_lists.html", 
+                               read=read, reading=reading, wishlist=wishlist,
+                               message="Book not found.", category="error")
+
+    # If book exists, insert into the appropriate list
+    target_table = table_map[list_type]
+
+    try:
+        conn.execute(
+            f"INSERT OR IGNORE INTO {target_table} (username, bookname) VALUES (?, ?)",
+            (username, bookname)
+        )
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        return f"Error: {e}", 500
+
+    conn.close()
+
+    # Redirect back to the reading lists page after adding the book
+    return redirect("/reading_lists")
+
+@app.route("/remove_from_list", methods=["POST"])
+def remove_from_list():
+    if "username" not in session:
+        return redirect("/login")
+
+    username = session["username"]
+    bookname = request.form.get("bookname")
+    list_type = request.form.get("list_type")
+
+    table_map = {
+        "read": "ReadBooksList",
+        "reading": "CurrentlyReadingBooks",
+        "wishlist": "WishlistBooks"
+    }
+
+    if list_type not in table_map:
+        return "Invalid list type", 400
+
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            f"DELETE FROM {table_map[list_type]} WHERE username = ? AND bookname = ?",
+            (username, bookname)
+        )
+        conn.commit()
+    except Exception as e:
+        return f"Error: {e}", 500
+    finally:
+        conn.close()
+
+    return redirect("/reading_lists")
 
 if __name__ == "__main__":
     app.run(debug=True)
