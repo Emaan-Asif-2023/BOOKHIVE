@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<head>
+    <title>Recommendations</title>
+</head>
+<body>
+<h2>Your Book Recommendations</h2>
+<ul>
+  {% for book in books %}
+    <li>{{ book[1] }} by {{ book[2] }} (Genre: {{ book[3] }})</li>
+  {% endfor %}
+</ul>
+</body>
+</html>

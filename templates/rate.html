@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<head>
+    <title>Rating</title>
+</head>
+<body>
+<form action="/rate" method="POST">
+  <input type="hidden" name="book_id" value="{{ book.id }}">
+  <label for="rating">Rate this book (1-5):</label>
+  <input type="number" name="rating" min="1" max="5" required>
+  <input type="submit" value="Submit Rating">
+</form>
+</body>
+</html>
