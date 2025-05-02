@@ -103,6 +103,11 @@ def login():
         if user and user["password"] == password:
             session["username"] = user["username"]
             return redirect("/home")
+
+        elif user and check_password_hash(user["password"], password):
+            session["username"] = user["username"]
+            return redirect("/home")
+
         else:
             return render_template("login.html", message="Invalid credentials", category="error")
 
@@ -366,6 +371,9 @@ def rate():
 
 @app.route('/recommendations')
 def recommendations():
+    if 'user_id' not in session:
+        return redirect('/login')
+
     user_id = session['user_id']
     conn = sqlite3.connect('yourdb.db')
     cursor = conn.cursor()
