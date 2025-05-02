@@ -323,12 +323,19 @@ def catalogue():
     filters = []
     values = []
 
-    if genre:
-        filters.append("genre = ?")
-        values.append(genre)
-    if author:
-        filters.append("author = ?")
-        values.append(author)
+    #if genre: # exact matching
+        #filters.append("genre = ?")
+        #values.append(genre)
+    if genre: #partial matching
+        filters.append("genre LIKE ?")
+        values.append(f"%{genre}%")
+
+    #if author: #exact matching for author
+     #   filters.append("author = ?")
+      #  values.append(author)
+    if author: #partial matching
+        filters.append("author LIKE ?")
+        values.append(f"%{author}%")
 
     if filters:
         query += " WHERE " + " AND ".join(filters)
