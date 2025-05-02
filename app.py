@@ -48,9 +48,9 @@ def run_initdb():
     
     return render_template("initdb.html", table_data=table_data)
 
-@app.route('/')
-def splash():
-    return render_template("logo.html")
+# @app.route('/')
+# def splash():
+#     return render_template("logo.html")  commenting out for while because the logo display takes time and we are in development
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -85,11 +85,11 @@ def register():
 
     return render_template("register.html")
 
-#@app.route("/") #don't remove this single back slash it's needed to run
-#def home():
-    #return redirect("/register")
+@app.route("/") #don't remove this single back slash it's needed to run
+def home():
+    return redirect("/register")
     # commented this out as i felt this in unnecessary... / back alash will run
-    #the logo then login or regitser page will appear..
+    # the logo then login or regitser page will appear..
 
 @app.route("/login", methods=["GET", "POST"]) #write backend for login
 def login():
@@ -98,12 +98,28 @@ def login():
         pass
     return render_template("login.html")
 
-@app.route("/home", methods=["GET", "POST"]) #write backend for home
+
+@app.route("/home")
 def homepage():
-    if request.method == "POST":
-        
-        pass
-    return render_template("home.html")
+    conn = get_db_connection()
+    
+    # Safely get books even if cover_url column doesn't exist
+    try:
+        books = conn.execute("""
+            SELECT bookname, author, genre,
+                   COALESCE(cover_url, '/static/default-cover.jpg') AS safe_cover
+            FROM Books
+        """).fetchall()
+    except sqlite3.OperationalError:  # If cover_url column is missing
+        books = conn.execute("""
+            SELECT bookname, author, genre,
+                   '/static/default-cover.jpg' AS safe_cover
+            FROM Books
+        """).fetchall()
+    
+    conn.close()
+    return render_template("home.html", books=books)
+
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
