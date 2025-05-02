@@ -116,7 +116,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect("/register")
 
 
 @app.route("/home")
@@ -459,6 +459,46 @@ def profile():
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return "Error loading profile", 500
+    
+@app.route("/profile_editing", methods=["GET", "POST"])
+def profile_editing():
+    if "username" not in session:
+        return redirect("/login")
+
+    old_username = session["username"]
+    conn = get_db_connection()
+
+    if request.method == "POST":
+        new_username = request.form.get("username")
+        new_password = request.form.get("password")
+        new_description = request.form.get("description")
+
+        if not new_username:
+            user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
+            conn.close()
+            return render_template("profile_editing.html", user=user, message="Username cannot be empty.", category="error")
+
+        try:
+            conn.execute(
+                "UPDATE Users SET username = ?, password = ?, description = ? WHERE username = ?",
+                (new_username, new_password, new_description, old_username)
+            )
+            conn.commit()
+            session["username"] = new_username
+            message = "Profile updated successfully!"
+        except sqlite3.IntegrityError:
+            message = "Username already taken."
+            new_username = old_username  # rollback change on error
+        finally:
+            user = conn.execute("SELECT * FROM Users WHERE username = ?", (new_username,)).fetchone()
+            conn.close()
+
+        return render_template("profile_editing.html", user=user, message=message, category="success")
+
+    # For GET request
+    user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
+    conn.close()
+    return render_template("profile_editing.html", user=user)
 
 if __name__ == "__main__":
     app.run(debug=True)
