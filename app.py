@@ -103,6 +103,11 @@ def login():
         if user and user["password"] == password:
             session["username"] = user["username"]
             return redirect("/home")
+
+        elif user and check_password_hash(user["password"], password):
+            session["username"] = user["username"]
+            return redirect("/home")
+
         else:
             return render_template("login.html", message="Invalid credentials", category="error")
 
@@ -111,7 +116,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/login")
+    return redirect("/register")
 
 
 @app.route("/home")
@@ -351,6 +356,55 @@ def catalogue():
 
     return render_template("catalogue.html", books=books)
 
+@app.route('/rate', methods=['POST'])
+def rate():
+    user_id = session['user_id']
+    book_id = request.form['book_id']
+    rating = int(request.form['rating'])
+
+    conn = sqlite3.connect('yourdb.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO ratings (user_id, book_id, rating) VALUES (?, ?, ?)', (user_id, book_id, rating))
+    conn.commit()
+    conn.close()
+
+    return redirect('/home')
+
+@app.route('/recommendations')
+def recommendations():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    user_id = session['user_id']
+    conn = sqlite3.connect('yourdb.db')
+    cursor = conn.cursor()
+
+    # Step 1: Find genres the user likes most
+    cursor.execute('''
+        SELECT books.genre, AVG(ratings.rating) as avg_rating
+        FROM ratings
+        JOIN books ON ratings.book_id = books.id
+        WHERE ratings.user_id = ?
+        GROUP BY books.genre
+        ORDER BY avg_rating DESC
+        LIMIT 1
+    ''', (user_id,))
+    top_genre = cursor.fetchone()
+
+    recommendations = []
+    if top_genre:
+        genre = top_genre[0]
+        cursor.execute('''
+            SELECT * FROM books
+            WHERE genre = ? AND id NOT IN (
+                SELECT book_id FROM ratings WHERE user_id = ?
+            )
+            LIMIT 5
+        ''', (genre, user_id))
+        recommendations = cursor.fetchall()
+
+    conn.close()
+    return render_template('recommendations.html', books=recommendations)
 
 @app.route("/profile_editing", methods=["GET", "POST"])
 def profile_editing():
