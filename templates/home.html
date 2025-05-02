@@ -1,6 +1,44 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div style="display: flex; justify-content: flex-end; padding: 10px 40px 0; margin-top: -10px;">
+    <a href="{{ url_for('profile_editing') }}">
+        <button style="
+            padding: 10px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;">
+            Edit Profile
+        </button>
+    </a>
+    <a href="{{ url_for('catalogue') }}">
+        <button style="
+            padding: 10px 16px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;">
+            Catalogue
+        </button>
+    </a>
+    <a href="{{ url_for('reading_lists') }}">
+        <button style="
+            padding: 10px 16px;
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            cursor: pointer;">
+            Reading List
+        </button>
+    </a>
+</div>
 <!-- Page Styling -->
 <style>
     .search-section {
