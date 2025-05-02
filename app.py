@@ -312,6 +312,37 @@ def remove_from_list():
         conn.close()
 
     return redirect("/reading_lists")
+@app.route("/catalogue")
+def catalogue():
+    conn = get_db_connection()
+    genre = request.args.get("genre")
+    author = request.args.get("author")
+    sort_by = request.args.get("sort_by")  # e.g., rating, name
+
+    query = "SELECT * FROM Books"
+    filters = []
+    values = []
+
+    if genre:
+        filters.append("genre = ?")
+        values.append(genre)
+    if author:
+        filters.append("author = ?")
+        values.append(author)
+
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+
+    if sort_by == "rating":
+        query += " ORDER BY averageRating DESC"
+    elif sort_by == "name":
+        query += " ORDER BY bookname ASC"
+
+    books = conn.execute(query, values).fetchall()
+    conn.close()
+
+    return render_template("catalogue.html", books=books)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

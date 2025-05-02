@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Book Catalogue</title>
+</head>
+<body>
+    <h1>Explore Our Book Catalogue</h1>
+
+    <form method="get" action="/catalogue">
+        <label>Genre:</label>
+        <input type="text" name="genre">
+        <label>Author:</label>
+        <input type="text" name="author">
+        <label>Sort By:</label>
+        <select name="sort_by">
+            <option value="">--Select--</option>
+            <option value="rating">Rating</option>
+            <option value="name">Book Name</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+
+    <hr>
+
+    {% if books %}
+        <ul>
+        {% for book in books %}
+            <li>
+                <img src="{{ book['cover_url'] or '/static/default-cover.jpg' }}" width="80">
+                <strong>{{ book['bookname'] }}</strong><br>
+                Author: {{ book['author'] }}<br>
+                Genre: {{ book['genre'] }}<br>
+                Rating: {{ book['averageRating'] }} / 5<br>
+                <a href="/book/{{ book['bookname'] }}">View Details</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No books found with the given filters.</p>
+    {% endif %}
+</body>
+</html>
