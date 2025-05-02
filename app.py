@@ -376,37 +376,48 @@ def recommendations():
         return redirect('/login')
 
     user_id = session['username']
-    import os
-    conn = sqlite3.connect(os.path.join(os.path.dirname(__file__), 'yourdb.db'))
-
+    conn = sqlite3.connect('yourdb.db')  # Simplified path
     cursor = conn.cursor()
 
-    # Step 1: Find genres the user likes most
-    cursor.execute('''
-        SELECT books.genre, AVG(ratings.rating) as avg_rating
-        FROM ratings
-        JOIN books ON ratings.book_id = books.id
-        WHERE ratings.user_id = ?
-        GROUP BY books.genre
-        ORDER BY avg_rating DESC
-        LIMIT 1
-    ''', (user_id,))
-    top_genre = cursor.fetchone()
+    try:
 
-    recommendations = []
-    if top_genre:
-        genre = top_genre[0]
         cursor.execute('''
-            SELECT * FROM books
-            WHERE genre = ? AND id NOT IN (
-                SELECT book_id FROM ratings WHERE user_id = ?
-            )
-            LIMIT 5
-        ''', (genre, user_id))
-        recommendations = cursor.fetchall()
+            SELECT b.genre, AVG(r.stars) as avg_rating
+            FROM Ratings r
+            JOIN Books b ON r.bookname = b.bookname
+            WHERE r.username = ?
+            GROUP BY b.genre
+            ORDER BY avg_rating DESC
+            LIMIT 1
+        ''', (user_id,))
+        top_genre = cursor.fetchone()
 
-    conn.close()
-    return render_template('recommendations.html', books=recommendations)
+        recommendations = []
+        if top_genre:
+            genre = top_genre[0]
+
+            cursor.execute('''
+                SELECT b.* 
+                FROM Books b
+                WHERE b.genre = ? 
+                AND b.bookname NOT IN (
+                    SELECT r.bookname 
+                    FROM Ratings r 
+                    WHERE r.username = ?
+                )
+                ORDER BY b.averageRating DESC
+                LIMIT 5
+            ''', (genre, user_id))
+            recommendations = cursor.fetchall()
+
+        return render_template('recommendations.html', books=recommendations)
+
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return "Error generating recommendations", 500
+        
+    finally:
+        conn.close()
 
 
 @app.route('/profile')
