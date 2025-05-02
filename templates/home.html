@@ -18,7 +18,7 @@
 
     .search-box button {
         padding: 10px 20px;
-        background-color: #2c3e50;
+        background-color: #1db522;
         color: white;
         border: none;
         border-radius: 5px;
@@ -40,6 +40,8 @@
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
     }
 
     .book-card:hover {
@@ -89,7 +91,7 @@
 <!-- Book Grid -->
 <div class="book-grid">
     {% for book in books %}
-    <div class="book-card">
+    <a href="{{ url_for('show_book', bookname=book['bookname']) }}" class="book-card">
         <img src="{{ book['safe_cover'] or '/static/default-cover.jpg' }}"
              class="book-cover"
              alt="{{ book['bookname'] }}">
@@ -101,7 +103,7 @@
             <span class="genre">{{ book['genre'] }}</span>
             {% endif %}
         </div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 {% endblock %}
