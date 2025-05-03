@@ -1,13 +1,59 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h2 {
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        li {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateY(-3px);
+        }
+
+        p {
+            text-align: center;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
-<h2>Your Book Recommendations</h2>
-<ul>
-  {% for book in books %}
-    <li>{{ book[1] }} by {{ book[2] }} (Genre: {{ book[3] }})</li>
-  {% endfor %}
-</ul>
+    <h2>Your Book Recommendations</h2>
+    {% if books %}
+    <ul>
+        {% for book in books %}
+        <li>{{ book[1] }} by {{ book[2] }} (Genre: {{ book[3] }})</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No recommendations available at the moment.</p>
+    {% endif %}
 </body>
 </html>
