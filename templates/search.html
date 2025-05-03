@@ -1,23 +1,26 @@
-<!-- register.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
+{% extends "base2.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto; padding: 20px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-<form method="POST">
-    <input type="text" name="search_term" placeholder="Search by username or email">
-    <button type="submit">Search</button>
-</form>
+    <h2 style="text-align: center; color: #2c3e50;">Search Users</h2>
 
-{% if users %}
-    <ul>
-        {% for user in users %}
-            <li>{{ user['username'] }} - {{ user['email'] }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+    <form method="POST" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" name="search_term" placeholder="Search by username or email" style="flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;">
+        <button type="submit" style="padding: 8px 16px; background-color: #34db58; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+    </form>
 
-</body>
-</html>
+    {% if users %}
+        <ul style="list-style: none; padding: 0;">
+            {% for user in users %}
+                <li style="padding: 10px; background: white; margin-bottom: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <strong>{{ user['username'] }}</strong><br>
+                    <span style="color: #555;">{{ user['email'] }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif users is not none %}
+        <p style="text-align: center; color: #888;">No users found.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
