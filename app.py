@@ -376,7 +376,8 @@ def recommendations():
         return redirect('/login')
 
     user_id = session['username']
-    conn = sqlite3.connect('yourdb.db')  # Simplified path
+    #conn = sqlite3.connect('yourdb.db')  # Simplified path
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
@@ -412,12 +413,17 @@ def recommendations():
 
         return render_template('recommendations.html', books=recommendations)
 
+    #except sqlite3.Error as e:
+     #   print(f"Database error: {e}")
+      #  return "Error generating recommendations", 500
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return "Error generating recommendations", 500
+        return render_template('recommendations.html', books=[], error=f"Database error: {e}")
         
     finally:
         conn.close()
+
+
+
 
 
 @app.route('/profile')
