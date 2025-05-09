@@ -526,10 +526,10 @@ def profile_editing():
     # For GET request
     user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
     conn.close()
-    return render_template("profile_editing.html", user=user
+    return render_template("profile_editing.html", user=user)
 
-                                                        @ app.route("/follow/<username>", methods=["POST"])
 
+@ app.route("/follow/<username>", methods=["POST"])
 def follow(username):
     if "username" not in session or session["username"] == username:
         return redirect("/allusers")
@@ -585,34 +585,65 @@ def view_profile(username):
         return redirect("/login")
 
     current_user = session["username"]
-    conn = get_db_connection()
 
-    user = conn.execute("SELECT * FROM Users WHERE username = ?", (username,)).fetchone()
+    try:
+        conn = get_db_connection()
 
-    if not user:
+        # Get user info
+        user = conn.execute("SELECT * FROM Users WHERE username = ?", (username,)).fetchone()
+        if not user:
+            conn.close()
+            return "User not found", 404
+
+        # Get user stats
+        books_read = conn.execute('SELECT COUNT(*) FROM ReadBooksList WHERE username = ?', (username,)).fetchone()[0]
+        wishlist_count = conn.execute('SELECT COUNT(*) FROM WishlistBooks WHERE username = ?', (username,)).fetchone()[0]
+        currently_reading = conn.execute('SELECT COUNT(*) FROM CurrentlyReadingBooks WHERE username = ?', (username,)).fetchone()[0]
+
+        # Get recent reviews
+        reviews = conn.execute('''
+            SELECT b.bookname, b.author, r.review 
+            FROM Reviews r
+            JOIN Books b ON r.bookname = b.bookname
+            WHERE r.username = ?
+            ORDER BY r.rowid DESC
+            LIMIT 3
+        ''', (username,)).fetchall()
+
+        # Get followers/following count
+        followers = conn.execute('SELECT COUNT(*) FROM Follows WHERE followee = ?', (username,)).fetchone()[0]
+        following = conn.execute('SELECT COUNT(*) FROM Follows WHERE follower = ?', (username,)).fetchone()[0]
+
+        # Determine if current user follows this profile user
+        is_following = conn.execute(
+            "SELECT 1 FROM Follows WHERE follower = ? AND followee = ?",
+            (current_user, username)
+        ).fetchone()
+
+        # Determine if they are mutual friends (both follow each other)
+        is_friend = conn.execute(
+            "SELECT 1 FROM Follows f1 JOIN Follows f2 ON f1.follower = f2.followee AND f1.followee = f2.follower WHERE f1.follower = ? AND f1.followee = ?",
+            (current_user, username)
+        ).fetchone()
+
         conn.close()
-        return "User not found", 404
 
-    current_user_id = conn.execute("SELECT id FROM Users WHERE username = ?", (current_user,)).fetchone()["id"]
-    profile_user_id = user["id"]
+        return render_template("profile.html",
+                               username=user['username'],
+                               email=user['email'],
+                               description=user['description'],
+                               books_read=books_read,
+                               wishlist_count=wishlist_count,
+                               currently_reading=currently_reading,
+                               reviews=reviews,
+                               followers=followers,
+                               following=following,
+                               is_following=is_following,
+                               is_friend=is_friend)
 
-
-    is_following = conn.execute(
-        "SELECT 1 FROM Followers WHERE follower_id = ? AND following_id = ?",
-        (current_user_id, profile_user_id)
-    ).fetchone()
-
-    is_friend = conn.execute(
-        "SELECT 1 FROM Friends WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)",
-        (current_user_id, profile_user_id, profile_user_id, current_user_id)
-    ).fetchone()
-
-    conn.close()
-
-    return render_template("profile.html", user=user, is_following=is_following, is_friend=is_friend)
-
-
-
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return "Error loading profile", 500
 
 if __name__ == "__main__":
     app.run(debug=True)
