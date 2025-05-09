@@ -159,11 +159,22 @@ def search():
 
 @app.route("/allusers")
 def all_users():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+
     conn = get_db_connection()
-    cursor = conn.execute("SELECT * FROM Users")
-    users = cursor.fetchall()
+
+    users = conn.execute("SELECT * FROM Users").fetchall()
+
+    followed = conn.execute("SELECT followee FROM Follows WHERE follower = ?", (current_user,)).fetchall()
+    followed_set = {row['followee'] for row in followed}
+
     conn.close()
-    return render_template("allusers.html", users=users)
+
+    return render_template("allusers.html", users=users, followed_set=followed_set, current_user=current_user)
+
 
 @app.route("/edit_cover/<bookname>", methods=["GET", "POST"])
 def edit_cover(bookname):
@@ -515,7 +526,93 @@ def profile_editing():
     # For GET request
     user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
     conn.close()
-    return render_template("profile_editing.html", user=user)
+    return render_template("profile_editing.html", user=user
+
+                                                        @ app.route("/follow/<username>", methods=["POST"])
+
+def follow(username):
+    if "username" not in session or session["username"] == username:
+        return redirect("/allusers")
+
+    conn = get_db_connection()
+    conn.execute("INSERT OR IGNORE INTO Follows (follower, followee) VALUES (?, ?)",
+                     (session["username"], username))
+    conn.commit()
+    conn.close()
+    return redirect("/allusers")
+
+@app.route("/unfollow/<username>", methods=["POST"])
+def unfollow(username):
+    if "username" not in session or session["username"] == username:
+        return redirect("/allusers")
+
+    conn = get_db_connection()
+    conn.execute("DELETE FROM Follows WHERE follower = ? AND followee = ?",
+                     (session["username"], username))
+    conn.commit()
+    conn.close()
+    return redirect("/allusers")
+
+
+#@app.route("/follow/<followed_username>", methods=["POST"])
+#def follow_user(followed_username):
+ #   if "username" not in session:
+  #      return redirect("/login")
+
+   # current_user = session["username"]
+    conn = get_db_connection()
+
+    #if current_user == followed_username:
+     #   return "Cannot follow yourself.", 400
+
+    #try:
+     #   conn.execute(
+      #      "INSERT OR IGNORE INTO Followers (follower, followed) VALUES (?, ?)",
+       #     (current_user, followed_username)
+        #)
+        #conn.commit()
+    #except Exception as e:
+     #   conn.close()
+      #  return f"Error: {e}", 500
+
+    #conn.close()
+    #return redirect("/allusers")
+
+#view profile
+@app.route("/profile/<username>")
+def view_profile(username):
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    conn = get_db_connection()
+
+    user = conn.execute("SELECT * FROM Users WHERE username = ?", (username,)).fetchone()
+
+    if not user:
+        conn.close()
+        return "User not found", 404
+
+    current_user_id = conn.execute("SELECT id FROM Users WHERE username = ?", (current_user,)).fetchone()["id"]
+    profile_user_id = user["id"]
+
+
+    is_following = conn.execute(
+        "SELECT 1 FROM Followers WHERE follower_id = ? AND following_id = ?",
+        (current_user_id, profile_user_id)
+    ).fetchone()
+
+    is_friend = conn.execute(
+        "SELECT 1 FROM Friends WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)",
+        (current_user_id, profile_user_id, profile_user_id, current_user_id)
+    ).fetchone()
+
+    conn.close()
+
+    return render_template("profile.html", user=user, is_following=is_following, is_friend=is_friend)
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
