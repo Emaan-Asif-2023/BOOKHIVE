@@ -526,9 +526,10 @@ def profile_editing():
     # For GET request
     user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
     conn.close()
-    return render_template("profile_editing.html", user=user
+    return (render_template("profile_editing.html", user=user)
 
-                                                        @ app.route("/follow/<username>", methods=["POST"])
+#follow
+@ app.route("/follow/<username>", methods=["POST"]))
 
 def follow(username):
     if "username" not in session or session["username"] == username:
