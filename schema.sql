@@ -262,6 +262,14 @@ INSERT INTO Users (username, email, password, description, noOfBooksRead, topPic
 
 INSERT INTO Books (bookname, author, genre, year, description, averageRating, noOfRatings, cover_url)
 VALUES
+    ('The Time Machine', 'H.G. Wells', 'Science Fiction', 1895, 'A scientist invents a machine to travel in time.', 4.2, 100, "https://covers.openlibrary.org/b/isbn/0866119833-L.jpg"),
+    ('Pride and Prejudice', 'Jane Austen', 'Romance', 1813, 'A classic novel about manners and marriage.', 4.7, 150, "https://covers.openlibrary.org/b/isbn/0141439513-L.jpg"),
+    ('The Da Vinci Code', 'Dan Brown', 'Thriller', 2003, 'A symbologist unravels a conspiracy in religious history.', 4.5, 200, "https://covers.openlibrary.org/b/isbn/0385504209-L.jpg"),
+    ('The Stranger', 'Albert Camus', 'Absurdism', 1949, 'The story follows Meursault, an indifferent settler in French Algeria, who, weeks after the funeral of his mother, kills an unnamed Arab man in Algiers.', 4.9, 300, "https://covers.openlibrary.org/b/isbn/2070360024-L.jpg"),
+    ('The Great Gatsby', 'F. Scott Fitzgerald', 'Classic', 1925, 'A story about the American dream and the roaring twenties.', 4.3, 250, "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg"),
+    ('1984', 'George Orwell', 'Dystopian', 1949, 'A dystopian novel set in a totalitarian society under constant surveillance.', 4.8, 400, "https://covers.openlibrary.org/b/isbn/0141036141-L.jpg"),
+    ('Crime and Punishment', 'Fyodor Dostoevsky', 'Psychological Fiction', 1866, 'Raskolnikov, a destitute and desperate former student, wanders through the slums of St Petersburg and commits a random murder without remorse or regret', 4.9, 350, "https://covers.openlibrary.org/b/isbn/978-0679734505-L.jpg"),
+    ('Metamorphosis', 'Franz Kafka', 'Surrealism', 1915, 'The story of Gregor Samsa, a young man who, after transforming overnight into a giant, beetle-like insect, becomes an object of disgrace to his family.', 4.8, 400, "https://covers.openlibrary.org/b/isbn/1578987857-L.jpg"),
     ('Harry Potter and the Sorcerers Stone', 'J.K. Rowling', 'Fantasy', 1997, 'A young wizard discovers his destiny.', 4.9, 500, 'https://covers.openlibrary.org/b/isbn/9780590353427-L.jpg'),
     ('To Kill a Mockingbird', 'Harper Lee', 'Fiction', 1960, 'A story of racial injustice in the Deep South.', 4.8, 300, 'https://covers.openlibrary.org/b/isbn/9780061120084-L.jpg'),
     ('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 1937, 'Bilbo Baggins embarks on an unexpected journey.', 4.7, 400, 'https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg'),
@@ -278,7 +286,6 @@ VALUES
     ('The Lightning Thief', 'Rick Riordan', 'Fantasy', 2005, 'A modern-day boy discovers he is a demigod.', 4.4, 275, 'https://covers.openlibrary.org/b/isbn/9780786838653-L.jpg'),
     ('The Kite Runner', 'Khaled Hosseini', 'Historical Fiction', 2003, 'A story of friendship, betrayal, and redemption set in Afghanistan.', 4.6, 280, 'https://covers.openlibrary.org/b/isbn/9781594631931-L.jpg'),
     ('Animal Farm', 'George Orwell', 'Political Satire', 1945, 'A group of farm animals overthrow their human farmer and establish a society based on equality—only to find power corrupts.', 4.7, 370, 'https://covers.openlibrary.org/b/isbn/9780451526342-L.jpg');
-
 
 
 INSERT INTO Ratings (username, bookname, stars) VALUES
