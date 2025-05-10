@@ -1,4 +1,3 @@
--- Drop tables if they exist
 DROP TABLE IF EXISTS BookRatingSummary;
 DROP TABLE IF EXISTS UserRatingSummary;
 DROP TABLE IF EXISTS BookGraph;
@@ -7,7 +6,7 @@ DROP TABLE IF EXISTS LikedBooksList;
 DROP TABLE IF EXISTS CurrentlyReadingBooks;
 DROP TABLE IF EXISTS WishlistBooks;
 DROP TABLE IF EXISTS ReadBooksList;
-DROP TABLE IF EXISTS Friends;
+DROP TABLE IF EXISTS Follows;
 DROP TABLE IF EXISTS Followers;
 DROP TABLE IF EXISTS Reviews;
 DROP TABLE IF EXISTS Ratings;
@@ -18,35 +17,36 @@ DROP TABLE IF EXISTS UserChallenges;
 DROP TABLE IF EXISTS Challenges;
 DROP TABLE IF EXISTS Books;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Notifications;
 
 -- Users table
 CREATE TABLE Users (
-    username NVARCHAR(100) PRIMARY KEY,
-    email NVARCHAR(255) UNIQUE NOT NULL,
-    password NVARCHAR(255) NOT NULL,
-    description NVARCHAR(MAX),
+    username TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    description TEXT,
     noOfBooksRead INT DEFAULT 0,
-    topPick1 NVARCHAR(255),
-    topPick2 NVARCHAR(255),
-    topPick3 NVARCHAR(255)
+    topPick1 TEXT,
+    topPick2 TEXT,
+    topPick3 TEXT
 );
 
 -- Books table
 CREATE TABLE Books (
-    bookname NVARCHAR(255) PRIMARY KEY,
-    author NVARCHAR(255) NOT NULL,
-    genre NVARCHAR(100),
+    bookname TEXT PRIMARY KEY,
+    author TEXT NOT NULL,
+    genre TEXT,
     year INT,
-    description NVARCHAR(MAX),
+    description TEXT,
     averageRating FLOAT DEFAULT 0,
     noOfRatings INT DEFAULT 0,
-    cover_url NVARCHAR(1000)
+    cover_url TEXT
 );
 
 -- Ratings table
 CREATE TABLE Ratings (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     stars INT CHECK (stars BETWEEN 1 AND 5),
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
@@ -55,9 +55,9 @@ CREATE TABLE Ratings (
 
 -- Reviews table
 CREATE TABLE Reviews (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
-    review NVARCHAR(MAX),
+    username TEXT,
+    bookname TEXT,
+    review TEXT,
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -65,26 +65,26 @@ CREATE TABLE Reviews (
 
 -- Followers table
 CREATE TABLE Followers (
-    follower NVARCHAR(100),
-    followee NVARCHAR(100),
+    follower TEXT,
+    followee TEXT,
     PRIMARY KEY (follower, followee),
     FOREIGN KEY (follower) REFERENCES Users(username),
     FOREIGN KEY (followee) REFERENCES Users(username)
 );
 
--- Friends table
-CREATE TABLE Friends (
-    user1 NVARCHAR(100),
-    user2 NVARCHAR(100),
-    PRIMARY KEY (user1, user2),
-    FOREIGN KEY (user1) REFERENCES Users(username),
-    FOREIGN KEY (user2) REFERENCES Users(username)
+-- Follows table
+CREATE TABLE Follows (
+    follower TEXT,
+    followee TEXT,
+    PRIMARY KEY (follower, followee),
+    FOREIGN KEY (follower) REFERENCES Users(username),
+    FOREIGN KEY (followee) REFERENCES Users(username)
 );
 
 -- ReadBooksList
 CREATE TABLE ReadBooksList (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -92,8 +92,8 @@ CREATE TABLE ReadBooksList (
 
 -- WishlistBooks
 CREATE TABLE WishlistBooks (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -101,8 +101,8 @@ CREATE TABLE WishlistBooks (
 
 -- CurrentlyReadingBooks
 CREATE TABLE CurrentlyReadingBooks (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -110,8 +110,8 @@ CREATE TABLE CurrentlyReadingBooks (
 
 -- LikedBooksList
 CREATE TABLE LikedBooksList (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -119,8 +119,8 @@ CREATE TABLE LikedBooksList (
 
 -- UserGraph
 CREATE TABLE UserGraph (
-    username NVARCHAR(100),
-    bookname NVARCHAR(255),
+    username TEXT,
+    bookname TEXT,
     ratingGiven INT CHECK (ratingGiven BETWEEN 1 AND 5),
     PRIMARY KEY (username, bookname),
     FOREIGN KEY (username) REFERENCES Users(username),
@@ -129,8 +129,8 @@ CREATE TABLE UserGraph (
 
 -- BookGraph
 CREATE TABLE BookGraph (
-    bookname NVARCHAR(255),
-    username NVARCHAR(100),
+    bookname TEXT,
+    username TEXT,
     ratingReceived INT CHECK (ratingReceived BETWEEN 1 AND 5),
     PRIMARY KEY (bookname, username),
     FOREIGN KEY (bookname) REFERENCES Books(bookname),
@@ -139,7 +139,7 @@ CREATE TABLE BookGraph (
 
 -- BookRatingSummary
 CREATE TABLE BookRatingSummary (
-    bookname NVARCHAR(255),
+    bookname TEXT,
     stars INT CHECK (stars BETWEEN 1 AND 5),
     count INT DEFAULT 0,
     PRIMARY KEY (bookname, stars),
@@ -148,7 +148,7 @@ CREATE TABLE BookRatingSummary (
 
 -- UserRatingSummary
 CREATE TABLE UserRatingSummary (
-    username NVARCHAR(100),
+    username TEXT,
     stars INT CHECK (stars BETWEEN 1 AND 5),
     count INT DEFAULT 0,
     PRIMARY KEY (username, stars),
@@ -157,11 +157,11 @@ CREATE TABLE UserRatingSummary (
 
 -- BookRecommendations
 CREATE TABLE BookRecommendations (
-    recommender NVARCHAR(100),
-    receiver NVARCHAR(100),
-    bookname NVARCHAR(255),
-    message NVARCHAR(MAX),
-    timestamp DATETIME DEFAULT GETDATE(),
+    recommender TEXT,
+    receiver TEXT,
+    bookname TEXT,
+    message TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (recommender, receiver, bookname),
     FOREIGN KEY (recommender) REFERENCES Users(username),
     FOREIGN KEY (receiver) REFERENCES Users(username),
@@ -170,16 +170,16 @@ CREATE TABLE BookRecommendations (
 
 -- BookFolders
 CREATE TABLE BookFolders (
-    folder_id INT IDENTITY(1,1) PRIMARY KEY,
-    username NVARCHAR(100),
-    folder_name NVARCHAR(100),
+    folder_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    folder_name TEXT,
     FOREIGN KEY (username) REFERENCES Users(username)
 );
 
 -- FolderBooks
 CREATE TABLE FolderBooks (
-    folder_id INT,
-    bookname NVARCHAR(255),
+    folder_id INTEGER,
+    bookname TEXT,
     PRIMARY KEY (folder_id, bookname),
     FOREIGN KEY (folder_id) REFERENCES BookFolders(folder_id),
     FOREIGN KEY (bookname) REFERENCES Books(bookname)
@@ -187,52 +187,60 @@ CREATE TABLE FolderBooks (
 
 -- Challenges
 CREATE TABLE Challenges (
-    challenge_id INT IDENTITY(1,1) PRIMARY KEY,
-    title NVARCHAR(255),
-    description NVARCHAR(MAX),
+    challenge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    description TEXT,
     goal INT
 );
 
 -- UserChallenges
 CREATE TABLE UserChallenges (
-    username NVARCHAR(100),
-    challenge_id INT,
+    username TEXT,
+    challenge_id INTEGER,
     progress INT DEFAULT 0,
-    completed BIT DEFAULT 0,
-    badge_url NVARCHAR(255),
+    completed INTEGER DEFAULT 0,
+    badge_url TEXT,
     PRIMARY KEY (username, challenge_id),
     FOREIGN KEY (username) REFERENCES Users(username),
     FOREIGN KEY (challenge_id) REFERENCES Challenges(challenge_id)
 );
---trigger on bookgraph
+
+--Notifications
+CREATE TABLE Notifications (
+    notificationID INTEGER PRIMARY KEY AUTOINCREMENT,
+    sendby TEXT,
+    sendto TEXT,
+    message TEXT,
+    FOREIGN KEY (sendby) REFERENCES Users(username),
+    FOREIGN KEY (sendto) REFERENCES Users(username)
+);
+
+-- Trigger on bookgraph
 CREATE TRIGGER trg_update_book_rating_summary
-ON BookGraph
-AFTER INSERT
-AS
+AFTER INSERT ON BookGraph
 BEGIN
-    MERGE BookRatingSummary AS target
-    USING (SELECT bookname, ratingReceived FROM inserted) AS source
-    ON (target.bookname = source.bookname AND target.stars = source.ratingReceived)
-    WHEN MATCHED THEN
-        UPDATE SET count = count + 1
-    WHEN NOT MATCHED THEN
-        INSERT (bookname, stars, count) VALUES (source.bookname, source.ratingReceived, 1);
-END;
---trigger on usergraph
-CREATE TRIGGER trg_update_user_rating_summary
-ON UserGraph
-AFTER INSERT
-AS
-BEGIN
-    MERGE UserRatingSummary AS target
-    USING (SELECT username, ratingGiven FROM inserted) AS source
-    ON (target.username = source.username AND target.stars = source.ratingGiven)
-    WHEN MATCHED THEN
-        UPDATE SET count = count + 1
-    WHEN NOT MATCHED THEN
-        INSERT (username, stars, count) VALUES (source.username, source.ratingGiven, 1);
+    UPDATE BookRatingSummary
+    SET count = count + 1
+    WHERE bookname = NEW.bookname AND stars = NEW.ratingReceived;
+
+    -- If no such record exists, insert a new row with the rating
+    INSERT OR IGNORE INTO BookRatingSummary (bookname, stars, count)
+    VALUES (NEW.bookname, NEW.ratingReceived, 1);
 END;
 
+-- Trigger on usergraph
+CREATE TRIGGER trg_update_user_rating_summary
+AFTER INSERT ON UserGraph
+BEGIN
+    -- First, try to update the count if the user already has a rating for that star
+    UPDATE UserRatingSummary
+    SET count = count + 1
+    WHERE username = NEW.username AND stars = NEW.ratingGiven;
+
+    -- If no such record exists, insert a new row with the rating
+    INSERT OR IGNORE INTO UserRatingSummary (username, stars, count)
+    VALUES (NEW.username, NEW.ratingGiven, 1);
+END;
 
 
 
@@ -261,21 +269,21 @@ VALUES
     ('The Great Gatsby', 'F. Scott Fitzgerald', 'Classic', 1925, 'A story about the American dream and the roaring twenties.', 4.3, 250, "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg"),
     ('1984', 'George Orwell', 'Dystopian', 1949, 'A dystopian novel set in a totalitarian society under constant surveillance.', 4.8, 400, "https://covers.openlibrary.org/b/isbn/0141036141-L.jpg"),
     ('Crime and Punishment', 'Fyodor Dostoevsky', 'Psychological Fiction', 1866, 'Raskolnikov, a destitute and desperate former student, wanders through the slums of St Petersburg and commits a random murder without remorse or regret', 4.9, 350, "https://covers.openlibrary.org/b/isbn/978-0679734505-L.jpg"),
-    ('Metamorphosis', 'Franz Kafka', 'Surrealism', 1915, 'The story of Gregor Samsa, a young man who, after transforming overnight into a giant, beetle-like insect, becomes an object of disgrace to his family.', 4.8, 400, "https://covers.openlibrary.org/b/isbn/1578987857-L.jpg");
-('Harry Potter and the Sorcerers Stone', 'J.K. Rowling', 'Fantasy', 1997, 'A young wizard discovers his destiny.', 4.9, 500, ''),
-('To Kill a Mockingbird', 'Harper Lee', 'Fiction', 1960, 'A story of racial injustice in the Deep South.', 4.8, 300, ''),
-('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 1937, 'Bilbo Baggins embarks on an unexpected journey.', 4.7, 400, ''),
-('Gone Girl', 'Gillian Flynn', 'Thriller', 2012, 'A wife goes missing and the husband is a suspect.', 4.3, 220, ''),
-('Sapiens', 'Yuval Noah Harari', 'Non-fiction', 2011, 'A brief history of humankind.', 4.4, 250, ''),
-('The Alchemist', 'Paulo Coelho', 'Adventure', 1988, 'A shepherd follows his dream to Egypt.', 4.5, 310, ''),
-('The Girl on the Train', 'Paula Hawkins', 'Thriller', 2015, 'A woman sees something shocking from a train.', 4.1, 210, ''),
-('The Little Prince', 'Antoine de Saint-Exupéry', 'Fable', 1943, 'A child prince visits planets in search of meaning.', 4.6, 150, ''),
-('Les Misérables', 'Victor Hugo', 'Historical Fiction', 1862, 'An ex-convict changes his life for good.', 4.7, 270, ''),
-('Charlottes Web', 'E.B. White', 'Children', 1952, 'A pig and a spider form a touching friendship.', 4.5, 190, ''),
-('Emma', 'Jane Austen', 'Romance', 1815, 'A young woman meddles in her friends love lives.', 4.4, 180, ''),
-('War and Peace', 'Leo Tolstoy', 'Historical Fiction', 1869, 'The lives of Russian aristocrats during the Napoleonic Wars.', 4.6, 330, ''),
-('Inferno', 'Dan Brown', 'Thriller', 2013, 'Langdon follows Dante’s clues through Florence.', 4.2, 190, ''),
-('The Lightning Thief', 'Rick Riordan', 'Fantasy', 2005, 'A modern-day boy discovers he is a demigod.', 4.4, 275, '');
+    ('Metamorphosis', 'Franz Kafka', 'Surrealism', 1915, 'The story of Gregor Samsa, a young man who, after transforming overnight into a giant, beetle-like insect, becomes an object of disgrace to his family.', 4.8, 400, "https://covers.openlibrary.org/b/isbn/1578987857-L.jpg"),
+    ('Harry Potter and the Sorcerers Stone', 'J.K. Rowling', 'Fantasy', 1997, 'A young wizard discovers his destiny.', 4.9, 500, ''),
+    ('To Kill a Mockingbird', 'Harper Lee', 'Fiction', 1960, 'A story of racial injustice in the Deep South.', 4.8, 300, ''),
+    ('The Hobbit', 'J.R.R. Tolkien', 'Fantasy', 1937, 'Bilbo Baggins embarks on an unexpected journey.', 4.7, 400, ''),
+    ('Gone Girl', 'Gillian Flynn', 'Thriller', 2012, 'A wife goes missing and the husband is a suspect.', 4.3, 220, ''),
+    ('Sapiens', 'Yuval Noah Harari', 'Non-fiction', 2011, 'A brief history of humankind.', 4.4, 250, ''),
+    ('The Alchemist', 'Paulo Coelho', 'Adventure', 1988, 'A shepherd follows his dream to Egypt.', 4.5, 310, ''),
+    ('The Girl on the Train', 'Paula Hawkins', 'Thriller', 2015, 'A woman sees something shocking from a train.', 4.1, 210, ''),
+    ('The Little Prince', 'Antoine de Saint-Exupéry', 'Fable', 1943, 'A child prince visits planets in search of meaning.', 4.6, 150, ''),
+    ('Les Misérables', 'Victor Hugo', 'Historical Fiction', 1862, 'An ex-convict changes his life for good.', 4.7, 270, ''),
+    ('Charlottes Web', 'E.B. White', 'Children', 1952, 'A pig and a spider form a touching friendship.', 4.5, 190, ''),
+    ('Emma', 'Jane Austen', 'Romance', 1815, 'A young woman meddles in her friends love lives.', 4.4, 180, ''),
+    ('War and Peace', 'Leo Tolstoy', 'Historical Fiction', 1869, 'The lives of Russian aristocrats during the Napoleonic Wars.', 4.6, 330, ''),
+    ('Inferno', 'Dan Brown', 'Thriller', 2013, 'Langdon follows Dante’s clues through Florence.', 4.2, 190, ''),
+    ('The Lightning Thief', 'Rick Riordan', 'Fantasy', 2005, 'A modern-day boy discovers he is a demigod.', 4.4, 275, '');
 
 
 INSERT INTO Ratings (username, bookname, stars) VALUES
@@ -311,7 +319,7 @@ INSERT INTO Followers (follower, followee) VALUES
 ('Zoya', 'Fatima'),
 ('Noor', 'Bilal');
 
-INSERT INTO Friends (user1, user2) VALUES
+INSERT INTO Follows (follower, followee) VALUES
 ('Ali', 'Rayan'),
 ('Fatima', 'Zoya'),
 ('Bilal', 'Usman'),
@@ -361,3 +369,8 @@ INSERT INTO BookGraph (bookname, username, ratingReceived) VALUES
 ('The Hobbit', 'Tariq', 4),
 ('Fahrenheit 451', 'Ayesha', 5),
 ('Moby Dick', 'Hamza', 3);
+
+INSERT INTO Notifications (notificationID, sendby, sendto, message) VALUES
+(1, 'Ali', 'Fatima', 'Just finished The Time Machine. Highly recommend'),
+(2, 'Fatima', 'Zoya', 'Crime and Punishment is an amazing book'),
+(3, 'Rayan', 'Ahmed', 'Gone Girl. You should check it out');

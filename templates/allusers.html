@@ -60,7 +60,7 @@
                 <div class="user-card">
                     <p><strong>{{ user.username }}</strong></p>
                     <p>{{ user.email }}</p>
-                    <form action="/view_profile/{{ user.username }}" method="get" style="display: inline;">
+                    <form action="/profile/{{ user.username }}" method="get" style="display: inline;">
                         <button type="submit">View Profile</button>
                     </form>
                     {% if user.username in followed_set %}
