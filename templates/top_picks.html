@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Picks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #1e90ff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0b65c2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Top Picks</h2>
+        <form method="POST" action="/update_top_picks">
+            <label>Top Pick 1:</label>
+            <input type="text" name="topPick1" value="{{ user.topPick1 or '' }}">
+            <form method="POST" action="/delete_top_pick/1"><button type="submit">Delete</button></form>
+
+            <label>Top Pick 2:</label>
+            <input type="text" name="topPick2" value="{{ user.topPick2 or '' }}">
+            <form method="POST" action="/delete_top_pick/2"><button type="submit">Delete</button></form>
+
+            <label>Top Pick 3:</label>
+            <input type="text" name="topPick3" value="{{ user.topPick3 or '' }}">
+            <form method="POST" action="/delete_top_pick/3"><button type="submit">Delete</button></form>
+
+            <button type="submit">Update Picks</button>
+        </form>
+    </div>
+</body>
+</html>
