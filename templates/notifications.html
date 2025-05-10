@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="/static/style.css"> <!-- if you have a stylesheet -->
+</head>
+<body>
+    <h1>Notifications for {{ current_user }}</h1>
+
+    {% if notifications %}
+        <ul>
+            {% for n in notifications %}
+                <li><strong>{{ n.sendby }}:</strong> {{ n.message }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No notifications yet.</p>
+    {% endif %}
+
+    <a href="/home">Back to Home</a>
+</body>
+</html>

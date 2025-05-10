@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS UserChallenges;
 DROP TABLE IF EXISTS Challenges;
 DROP TABLE IF EXISTS Books;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Notifications;
 
 -- Users table
 CREATE TABLE Users (
@@ -204,6 +205,16 @@ CREATE TABLE UserChallenges (
     FOREIGN KEY (challenge_id) REFERENCES Challenges(challenge_id)
 );
 
+--Notifications
+CREATE TABLE Notifications (
+    notificationID INTEGER PRIMARY KEY AUTOINCREMENT,
+    sendby TEXT,
+    sendto TEXT,
+    message TEXT,
+    FOREIGN KEY (sendby) REFERENCES Users(username),
+    FOREIGN KEY (sendto) REFERENCES Users(username)
+);
+
 -- Trigger on bookgraph
 CREATE TRIGGER trg_update_book_rating_summary
 AFTER INSERT ON BookGraph
@@ -358,3 +369,8 @@ INSERT INTO BookGraph (bookname, username, ratingReceived) VALUES
 ('The Hobbit', 'Tariq', 4),
 ('Fahrenheit 451', 'Ayesha', 5),
 ('Moby Dick', 'Hamza', 3);
+
+INSERT INTO Notifications (notificationID, sendby, sendto, message) VALUES
+(1, 'Ali', 'Fatima', 'Just finished The Time Machine. Highly recommend'),
+(2, 'Fatima', 'Zoya', 'Crime and Punishment is an amazing book'),
+(3, 'Rayan', 'Ahmed', 'Gone Girl. You should check it out');

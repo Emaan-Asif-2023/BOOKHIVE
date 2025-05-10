@@ -645,5 +645,65 @@ def view_profile(username):
         print(f"Database error: {e}")
         return "Error loading profile", 500
 
+
+@app.route("/chat", methods=["GET", "POST"])
+def chat():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    conn = get_db_connection()
+    users = conn.execute("SELECT username FROM Users WHERE username != ?", (current_user,)).fetchall()
+
+    success = None
+    error = None
+
+    if request.method == "POST":
+        recipient = request.form.get("sendto")
+        message = request.form.get("message")
+
+        if not recipient or not message:
+            conn.close()
+            return render_template("chat.html", current_user=current_user, error="Recipient and message are required.", users=users)
+
+        try:
+            conn.execute(
+                "INSERT INTO Notifications (sendby, sendto, message) VALUES (?, ?, ?)",
+                (current_user, recipient, message)
+            )
+            conn.commit()
+            success = "Message sent successfully!"
+        except sqlite3.Error as e:
+            conn.close()
+            return f"Database error: {e}", 500
+
+    chats = []
+    conn.close()
+
+    return render_template("chat.html", chats=chats, current_user=current_user, users=users, success=success, error=error)
+
+
+@app.route("/notifications")
+def notifications():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    conn = get_db_connection()
+
+    users = conn.execute("SELECT username FROM Users WHERE username != ?", (current_user,)).fetchall()
+
+    notifications = conn.execute('''
+        SELECT sendby, message 
+        FROM Notifications 
+        WHERE sendto = ?
+        ORDER BY rowid DESC
+    ''', (current_user,)).fetchall()
+
+    conn.close()
+
+    return render_template("notifications.html", notifications=notifications, current_user=current_user)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

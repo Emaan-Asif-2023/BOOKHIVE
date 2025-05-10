@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <h2>Chat - Logged in as {{ current_user }}</h2>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    {% if success %}
+        <p style="color:green;">{{ success }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="sendto">Send To:</label>
+        <select name="sendto" required>
+            {% for user in users %}
+                <option value="{{ user.username }}">{{ user.username }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="message">Message:</label>
+        <input type="text" name="message" required><br>
+
+        <button type="submit">Send</button>
+    </form>
+</body>
+</html>
