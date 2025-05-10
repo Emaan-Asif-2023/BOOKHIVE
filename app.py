@@ -621,9 +621,9 @@ def top_picks():
 @app.route('/update_top_picks', methods=['POST'])
 def update_top_picks():
     username = session.get('username')
-    pick1 = request.form['topPick1']
-    pick2 = request.form['topPick2']
-    pick3 = request.form['topPick3']
+    pick1 = request.form.get('topPick1')
+    pick2 = request.form.get('topPick2')
+    pick3 = request.form.get('topPick3')
 
     conn = get_db_connection()
     conn.execute('UPDATE Users SET topPick1 = ?, topPick2 = ?, topPick3 = ? WHERE username = ?', (pick1, pick2, pick3, username))
