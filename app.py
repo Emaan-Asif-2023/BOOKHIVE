@@ -610,6 +610,36 @@ def view_profile(username):
 
     return render_template("profile.html", user=user, is_following=is_following, is_friend=is_friend)
 
+@app.route('/top_picks')
+def top_picks():
+    username = session.get('username')
+    conn = get_db_connection()
+    user = conn.execute('SELECT topPick1, topPick2, topPick3 FROM Users WHERE username = ?', (username,)).fetchone()
+    conn.close()
+    return render_template('top_picks.html', user=user)
+
+@app.route('/update_top_picks', methods=['POST'])
+def update_top_picks():
+    username = session.get('username')
+    pick1 = request.form['topPick1']
+    pick2 = request.form['topPick2']
+    pick3 = request.form['topPick3']
+
+    conn = get_db_connection()
+    conn.execute('UPDATE Users SET topPick1 = ?, topPick2 = ?, topPick3 = ? WHERE username = ?', (pick1, pick2, pick3, username))
+    conn.commit()
+    conn.close()
+    return redirect('/top_picks')
+
+@app.route('/delete_top_pick/<int:pick_number>', methods=['POST'])
+def delete_top_pick(pick_number):
+    username = session.get('username')
+    column = f"topPick{pick_number}"
+    conn = get_db_connection()
+    conn.execute(f'UPDATE Users SET {column} = NULL WHERE username = ?', (username,))
+    conn.commit()
+    conn.close()
+    return redirect('/top_picks')
 
 
 
