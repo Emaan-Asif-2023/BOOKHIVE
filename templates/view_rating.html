@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ratings for {{ bookname }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Ratings for "{{ bookname }}"</h2>
+    <canvas id="ratingsChart" width="700" height="100"></canvas>
+    <script>
+        const ctx = document.getElementById('ratingsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ usernames | safe }},
+                datasets: [{
+                    label: 'Rating',
+                    data: {{ ratings | safe }},
+                    backgroundColor: {{ ratings | safe }}.map((_, index) =>
+                        index % 2 === 0 ? 'rgba(255, 105, 180, 0.7)' : 'rgba(80, 200, 120, 0.7)'
+                    ),
+                    borderColor: {{ ratings | safe }}.map((_, index) =>
+                        index % 2 === 0 ? 'rgba(255, 105, 180, 1)' : 'rgba(80, 200, 120, 1)'
+                    ),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
