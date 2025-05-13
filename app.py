@@ -784,6 +784,34 @@ def rate_book(bookname):
     flash("Your rating has been submitted!")
     return redirect(url_for("book_page", bookname=bookname))
 
+@app.route('/search_books', methods=['GET', 'POST'])
+def search_books():
+    results = []
+    if request.method == 'POST':
+        query = request.form.get('query')
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        sql_query = """
+        SELECT * FROM Books
+        WHERE lower(bookname) LIKE ?
+        OR lower(author) LIKE ?
+        OR lower(genre) LIKE ?
+        """
+
+        search_term = f"%{query.lower()}%"
+        cur.execute(sql_query, (search_term, search_term, search_term))
+        results = cur.fetchall()
+        conn.close()
+
+    return render_template('searchbook.html', results=results)
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
