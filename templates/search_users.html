@@ -1,0 +1,39 @@
+{% extends "base2.html" %}
+{% block content %}
+<div style="max-width: 900px; margin: 40px auto; padding: 20px; background: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+
+    <h2 style="text-align: center; color: #2c3e50;">Search Users</h2>
+
+    <form method="POST" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 30px;">
+        <input type="text" name="search_term" placeholder="Search by username or email" style="flex: 1; max-width: 400px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 4px;">
+        <button type="submit" style="padding: 10px 18px; background-color: #34db58; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+    </form>
+
+    <div class="user-list" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+        {% if users %}
+            {% for user in users %}
+                {% if user.username != current_user %}
+                    <div class="user-card" style="background-color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 220px; text-align: center;">
+                        <p><strong>{{ user.username }}</strong></p>
+                        <p style="color: #555;">{{ user.email }}</p>
+                        <form action="/profile/{{ user.username }}" method="get" style="margin: 5px 0;">
+                            <button type="submit" style="background-color: #007BFF; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">View Profile</button>
+                        </form>
+                        {% if user.username in followed_set %}
+                            <form action="/unfollow/{{ user.username }}" method="post" style="margin: 5px 0;">
+                                <button type="submit" style="background-color: #b33131; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Unfollow</button>
+                            </form>
+                        {% else %}
+                            <form action="/follow/{{ user.username }}" method="post" style="margin: 5px 0;">
+                                <button type="submit" style="background-color: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Follow</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #888;">No users found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -3,21 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <title>Notifications</title>
-    <link rel="stylesheet" href="/static/style.css"> <!-- if you have a stylesheet -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background-color: white;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #eef3f9;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3a76d6;
+            border-radius: 5px;
+        }
+
+        li strong {
+            color: #1c3d70;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            background-color: #3a76d6;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 5px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-link:hover {
+            background-color: #2c5aa0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Notifications for {{ current_user }}</h1>
+    <div class="container">
+        <h1>Notifications for {{ current_user }}</h1>
 
-    {% if notifications %}
-        <ul>
-            {% for n in notifications %}
-                <li><strong>{{ n.sendby }}:</strong> {{ n.message }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No notifications yet.</p>
-    {% endif %}
+        {% if notifications %}
+            <ul>
+                {% for n in notifications %}
+                    <li><strong>{{ n.sendby }}:</strong> {{ n.message }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No notifications yet.</p>
+        {% endif %}
 
-    <a href="/home">Back to Home</a>
+        <a href="/home" class="back-link">← Back to Home</a>
+    </div>
 </body>
 </html>

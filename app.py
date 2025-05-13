@@ -2,6 +2,8 @@ import sqlite3
 from flask import Flask, request, render_template, redirect
 from werkzeug.security import generate_password_hash
 from flask import session
+from flask import url_for,  flash
+
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
@@ -142,20 +144,28 @@ def homepage():
 
 
 @app.route("/search", methods=["GET", "POST"])
-def search():
-    users = []
+def search_users():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    conn = get_db_connection()
+
     if request.method == "POST":
         search_term = request.form.get("search_term")
-
-        conn = get_db_connection()
-        cursor = conn.execute(
-            "SELECT username, email FROM Users WHERE username LIKE ? OR email LIKE ?",
+        users = conn.execute(
+            "SELECT * FROM Users WHERE username LIKE ? OR email LIKE ?",
             (f"%{search_term}%", f"%{search_term}%")
-        )
-        users = cursor.fetchall()
-        conn.close()
+        ).fetchall()
+    else:
+        users = conn.execute("SELECT * FROM Users").fetchall()
 
-    return render_template("search.html", users=users)
+    followed = conn.execute("SELECT followee FROM Follows WHERE follower = ?", (current_user,)).fetchall()
+    followed_set = {row['followee'] for row in followed}
+
+    conn.close()
+    return render_template("search_users.html", users=users, followed_set=followed_set, current_user=current_user)
+
 
 @app.route("/allusers")
 def all_users():
@@ -196,12 +206,26 @@ def edit_cover(bookname):
     #return render_template("edit_cover.html", bookname=bookname)
 @app.route('/book/<bookname>')
 def show_book(bookname):
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
     conn = get_db_connection()
-    book = conn.execute('SELECT * FROM Books WHERE bookname = ?', (bookname,)).fetchone()
-    conn.close()
-    if book is None:
+
+    users = conn.execute("SELECT username FROM Users WHERE username != ?", (current_user,)).fetchall()
+
+    book = conn.execute("SELECT * FROM Books WHERE bookname = ?", (bookname,)).fetchone()
+    if not book:
+        conn.close()
         return "Book not found", 404
-    return render_template('bookpage.html', book=book)
+
+    # Get current user's rating for this book
+    rating = conn.execute("SELECT stars FROM Ratings WHERE username = ? AND bookname = ?", (current_user, bookname)).fetchone()
+    user_rating = rating["stars"] if rating else 0
+
+    conn.close()
+
+    return render_template("bookpage.html", book=book, user_rating=user_rating)
 
 @app.route("/reading_lists", methods=["GET", "POST"])
 def reading_lists():
@@ -527,30 +551,31 @@ def profile_editing():
     user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
     conn.close()
     return render_template("profile_editing.html", user=user)
+
 @ app.route("/follow/<username>", methods=["POST"])
 
 def follow(username):
     if "username" not in session or session["username"] == username:
-        return redirect("/allusers")
+        return redirect("/search")
 
     conn = get_db_connection()
     conn.execute("INSERT OR IGNORE INTO Follows (follower, followee) VALUES (?, ?)",
                      (session["username"], username))
     conn.commit()
     conn.close()
-    return redirect("/allusers")
+    return redirect("/search")
 
 @app.route("/unfollow/<username>", methods=["POST"])
 def unfollow(username):
     if "username" not in session or session["username"] == username:
-        return redirect("/allusers")
+        return redirect("/search")
 
     conn = get_db_connection()
     conn.execute("DELETE FROM Follows WHERE follower = ? AND followee = ?",
                      (session["username"], username))
     conn.commit()
     conn.close()
-    return redirect("/allusers")
+    return redirect("/search")
 
 
 #@app.route("/follow/<followed_username>", methods=["POST"])
@@ -578,37 +603,62 @@ def unfollow(username):
     #return redirect("/allusers")
 
 #view profile
-@app.route("/profile/<username>")
+@app.route('/profile/<username>')
 def view_profile(username):
-    if "username" not in session:
-        return redirect("/login")
+    if 'username' not in session:
+        return redirect(url_for('login'))
 
-    current_user = session["username"]
-    conn = get_db_connection()
+    current_user = session['username']
 
-    user = conn.execute("SELECT * FROM Users WHERE username = ?", (username,)).fetchone()
+    try:
+        conn = get_db_connection()
 
-    if not user:
+        profile_user = conn.execute('SELECT * FROM Users WHERE username = ?', (username,)).fetchone()
+        if not profile_user:
+            conn.close()
+            return "User not found", 404
+
+        books_read = conn.execute('SELECT COUNT(*) FROM ReadBooksList WHERE username = ?', (username,)).fetchone()[0]
+        wishlist_count = conn.execute('SELECT COUNT(*) FROM WishlistBooks WHERE username = ?', (username,)).fetchone()[0]
+        currently_reading = conn.execute('SELECT COUNT(*) FROM CurrentlyReadingBooks WHERE username = ?', (username,)).fetchone()[0]
+
+
+        reviews = conn.execute('''
+            SELECT b.bookname, b.author, r.review 
+            FROM Reviews r
+            JOIN Books b ON r.bookname = b.bookname
+            WHERE r.username = ?
+            ORDER BY r.rowid DESC
+            LIMIT 3
+        ''', (username,)).fetchall()
+
+        followers = conn.execute('SELECT COUNT(*) FROM Followers WHERE followee = ?', (username,)).fetchone()[0]
+        following = conn.execute('SELECT COUNT(*) FROM Followers WHERE follower = ?', (username,)).fetchone()[0]
+
+        is_following = conn.execute(
+            'SELECT 1 FROM Followers WHERE follower = ? AND followee = ?',
+            (current_user, username)
+        ).fetchone()
+
         conn.close()
-        return "User not found", 404
 
-    current_user_id = conn.execute("SELECT id FROM Users WHERE username = ?", (current_user,)).fetchone()["id"]
-    profile_user_id = user["id"]
+        return render_template('profile.html',
+            username=profile_user['username'],
+            email=profile_user['email'],
+            description=profile_user['description'],
+            books_read=books_read,
+            wishlist_count=wishlist_count,
+            currently_reading=currently_reading,
+            reviews=reviews,
+            followers=followers,
+            following=following,
+            is_following=is_following,
+            #is_friend=None
+        )
 
-
-    is_following = conn.execute(
-        "SELECT 1 FROM Followers WHERE follower_id = ? AND following_id = ?",
-        (current_user_id, profile_user_id)
-    ).fetchone()
-
-    is_friend = conn.execute(
-        "SELECT 1 FROM Friends WHERE (user1_id = ? AND user2_id = ?) OR (user1_id = ? AND user2_id = ?)",
-        (current_user_id, profile_user_id, profile_user_id, current_user_id)
-    ).fetchone()
-
-    conn.close()
-
-    return render_template("profile.html", user=user, is_following=is_following, is_friend=is_friend)
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+        return "Error loading profile", 500
 
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
@@ -699,8 +749,117 @@ def delete_top_pick(pick_number):
     conn.close()
     return redirect('/top_picks')
 
+@app.route('/view_ratings/<bookname>')
+def view_ratings(bookname):
+    conn = get_db_connection()
+    ratings = conn.execute(
+        "SELECT username, stars FROM Ratings WHERE bookname = ?",
+        (bookname,)
+    ).fetchall()
+    conn.close()
+
+    usernames = [row["username"] for row in ratings]
+    rating_values = [row["stars"] for row in ratings]
 
 
+    return render_template("view_rating.html", usernames=usernames, ratings=rating_values, bookname=bookname)
+
+
+
+
+
+@app.route('/rate_book/<bookname>', methods=['POST'])
+def rate_book(bookname):
+    username = session.get("username")
+    stars = int(request.form["stars"])
+
+    conn = get_db_connection()
+
+    existing = conn.execute("SELECT * FROM Ratings WHERE username = ? AND bookname = ?",
+                            (username, bookname)).fetchone()
+
+    if existing:
+        conn.execute("UPDATE Ratings SET stars = ? WHERE username = ? AND bookname = ?", (stars, username, bookname))
+    else:
+        conn.execute("INSERT INTO Ratings (username, bookname, stars) VALUES (?, ?, ?)", (username, bookname, stars))
+        conn.execute("INSERT INTO BookGraph (bookname, username, ratingReceived) VALUES (?, ?, ?)",
+                     (bookname, username, stars))
+        conn.execute("INSERT INTO UserGraph (username, bookname, ratingGiven) VALUES (?, ?, ?)",
+                     (username, bookname, stars))
+
+    rating_data = conn.execute("SELECT AVG(stars) as avg, COUNT(*) as count FROM Ratings WHERE bookname = ?",
+                               (bookname,)).fetchone()
+    conn.execute("UPDATE Books SET averageRating = ?, noOfRatings = ? WHERE bookname = ?",
+                 (rating_data["avg"], rating_data["count"], bookname))
+
+    conn.commit()
+    conn.close()
+
+    flash("Your rating has been submitted!")
+    return redirect(url_for("book_page", bookname=bookname))
+
+@app.route('/search_books', methods=['GET', 'POST'])
+def search_books():
+    results = []
+    if request.method == 'POST':
+        query = request.form.get('query')
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        sql_query = """
+        SELECT * FROM Books
+        WHERE lower(bookname) LIKE ?
+        OR lower(author) LIKE ?
+        OR lower(genre) LIKE ?
+        """
+
+        search_term = f"%{query.lower()}%"
+        cur.execute(sql_query, (search_term, search_term, search_term))
+        results = cur.fetchall()
+        conn.close()
+
+    return render_template('searchbook.html', results=results)
+
+@app.route('/star_rating', methods=['POST'])
+def star_rating():
+    if "username" not in session:
+        return {"status": "error", "message": "Login required"}, 401
+
+    current_user = session["username"]
+    data = request.get_json()
+    bookname = data.get("bookname")
+    stars = data.get("stars")
+
+    if not bookname or not stars or not (1 <= stars <= 5):
+        return {"status": "error", "message": "Invalid data"}, 400
+
+    try:
+        conn = get_db_connection()
+        existing = conn.execute(
+            "SELECT * FROM Ratings WHERE username = ? AND bookname = ?",
+            (current_user, bookname)
+        ).fetchone()
+
+        if existing:
+            conn.execute("UPDATE Ratings SET stars = ? WHERE username = ? AND bookname = ?",
+                         (stars, current_user, bookname))
+        else:
+            conn.execute("INSERT INTO Ratings (username, bookname, stars) VALUES (?, ?, ?)",
+                         (current_user, bookname, stars))
+
+        # Optional: Update Books table's average and count
+        rating_data = conn.execute("SELECT AVG(stars) as avg, COUNT(*) as count FROM Ratings WHERE bookname = ?",(bookname,)).fetchone()
+        conn.execute("UPDATE Books SET averageRating = ?, noOfRatings = ? WHERE bookname = ?",
+                     (rating_data["avg"], rating_data["count"], bookname))
+
+        conn.commit()
+        conn.close()
+
+        return {"status": "success", "message": "Rating saved"}
+    
+    except Exception as e:
+        print(f"Error in /star_rating: {e}")
+        return {"status": "error", "message": "Server error"}, 500
 
 if __name__ == "__main__":
     app.run(debug=True)
