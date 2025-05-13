@@ -1,115 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Top Picks</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f6f6f6;
-            padding: 30px;
-        }
+{% extends "base2.html" %}
+{% block content %}
+<div style="max-width: 700px; margin: 40px auto; padding: 30px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #ccc;
-        }
+    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Your Top Picks</h2>
 
-        .top-pick-group {
-            margin-bottom: 20px;
-        }
+    <!-- Update Form -->
+    <form method="POST" action="/update_top_picks">
+        <div style="margin-bottom: 20px;">
+            <label for="topPick1" style="font-weight: 600; color: #333;">Top Pick 1:</label>
+            <input type="text" id="topPick1" name="topPick1" value="{{ user.topPick1 or '' }}" 
+                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+        </div>
 
-        label {
-            display: block;
-            font-weight: bold;
-        }
+        <div style="margin-bottom: 20px;">
+            <label for="topPick2" style="font-weight: 600; color: #333;">Top Pick 2:</label>
+            <input type="text" id="topPick2" name="topPick2" value="{{ user.topPick2 or '' }}" 
+                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+        </div>
 
-        input[type="text"] {
-            width: 80%;
-            padding: 8px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            display: inline-block;
-        }
+        <div style="margin-bottom: 25px;">
+            <label for="topPick3" style="font-weight: 600; color: #333;">Top Pick 3:</label>
+            <input type="text" id="topPick3" name="topPick3" value="{{ user.topPick3 or '' }}" 
+                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+        </div>
 
-        .delete-form {
-            display: inline-block;
-            margin-left: 10px;
-        }
-
-        .delete-form button {
-            background-color: #dc3545;
-            border: none;
-            color: white;
-            padding: 8px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .delete-form button:hover {
-            background-color: #b02a37;
-        }
-
-        .update-form button[type="submit"] {
-            background-color: #1e90ff;
+        <button type="submit" style="
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;">
+            Update Picks
+        </button>
+    </form>
 
-        .update-form button[type="submit"]:hover {
-            background-color: #0b65c2;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Your Top Picks</h2>
+    <hr style="margin: 40px 0; border-top: 1px solid #ddd;">
 
-        <!-- Update Form -->
-        <form class="update-form" method="POST" action="/update_top_picks">
-            <div class="top-pick-group">
-                <label>Top Pick 1:</label>
-                <input type="text" name="topPick1" value="{{ user.topPick1 or '' }}">
-            </div>
-
-            <div class="top-pick-group">
-                <label>Top Pick 2:</label>
-                <input type="text" name="topPick2" value="{{ user.topPick2 or '' }}">
-            </div>
-
-            <div class="top-pick-group">
-                <label>Top Pick 3:</label>
-                <input type="text" name="topPick3" value="{{ user.topPick3 or '' }}">
-            </div>
-
-
-            <button type="submit">Update Picks</button>
+    <!-- Delete Forms -->
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        <form method="POST" action="/delete_top_pick/1" style="display: inline;">
+            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 1</button>
         </form>
 
-        <hr>
-        <hr>
-
-        <!-- Delete Forms (separate for each pick) -->
-        <form class="delete-form" method="POST" action="/delete_top_pick/1">
-            <button type="submit">Delete Top Pick 1</button>
+        <form method="POST" action="/delete_top_pick/2" style="display: inline;">
+            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 2</button>
         </form>
 
-        <form class="delete-form" method="POST" action="/delete_top_pick/2">
-            <button type="submit">Delete Top Pick 2</button>
-        </form>
-
-        <form class="delete-form" method="POST" action="/delete_top_pick/3">
-            <button type="submit">Delete Top Pick 3</button>
+        <form method="POST" action="/delete_top_pick/3" style="display: inline;">
+            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 3</button>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

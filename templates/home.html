@@ -40,6 +40,13 @@
                 Reading List
             </button>
         </a>
+
+        <a href="{{ url_for('notifications') }}" style="text-decoration: none;">
+            <button style="padding: 8px 16px; background-color: #be6674; color: #ffffff;
+                border: 1px solid #ffffff; border-radius: 4px; cursor: pointer;">
+                Notifications
+            </button>
+        </a>
     </div>
 
     <!-- Search Bar (Center) -->
@@ -64,6 +71,12 @@
 
     <!-- Right Buttons -->
     <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <a href="/recommendations"  style="text-decoration: none;">
+            <button style="padding: 8px 16px; background-color: #669ae8; color: #ffffff;
+                border: 1px solid #cbd8ec; border-radius: 4px; cursor: pointer;">
+                Recommendations
+            </button>
+        </a>
         <a href="{{ url_for('profile_editing') }}" style="text-decoration: none;">
             <button style="padding: 8px 16px; background-color: #669ae8; color: #ffffff;
                 border: 1px solid #cbd8ec; border-radius: 4px; cursor: pointer;">
@@ -79,8 +92,15 @@
         </a>
     </div>
 </nav>
-
-
+<!-- 
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="/recommendations" 
+       style="padding: 10px 20px; background-color: #669ae8; color: #ffffff; 
+              border-radius: 5px; text-decoration: none; font-weight: bold;">
+        Recommendations
+    </a>
+</div>
+ -->
 <!-- Page Styling -->
 <style>
     .search-section {
@@ -162,13 +182,6 @@
 
 
 <!-- Recommendations Button -->
-<div style="text-align: center; margin-bottom: 20px;">
-    <a href="/recommendations" 
-       style="padding: 10px 20px; background-color: #669ae8; color: #ffffff; 
-              border-radius: 5px; text-decoration: none; font-weight: bold;">
-        Recommendations
-    </a>
-</div>
 
 <!-- Book Grid -->
 <div class="book-grid">

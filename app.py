@@ -144,20 +144,28 @@ def homepage():
 
 
 @app.route("/search", methods=["GET", "POST"])
-def search():
-    users = []
+def search_users():
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
+    conn = get_db_connection()
+
     if request.method == "POST":
         search_term = request.form.get("search_term")
-
-        conn = get_db_connection()
-        cursor = conn.execute(
-            "SELECT username, email FROM Users WHERE username LIKE ? OR email LIKE ?",
+        users = conn.execute(
+            "SELECT * FROM Users WHERE username LIKE ? OR email LIKE ?",
             (f"%{search_term}%", f"%{search_term}%")
-        )
-        users = cursor.fetchall()
-        conn.close()
+        ).fetchall()
+    else:
+        users = conn.execute("SELECT * FROM Users").fetchall()
 
-    return render_template("search.html", users=users)
+    followed = conn.execute("SELECT followee FROM Follows WHERE follower = ?", (current_user,)).fetchall()
+    followed_set = {row['followee'] for row in followed}
+
+    conn.close()
+    return render_template("search_users.html", users=users, followed_set=followed_set, current_user=current_user)
+
 
 @app.route("/allusers")
 def all_users():
@@ -529,30 +537,31 @@ def profile_editing():
     user = conn.execute("SELECT * FROM Users WHERE username = ?", (old_username,)).fetchone()
     conn.close()
     return render_template("profile_editing.html", user=user)
+
 @ app.route("/follow/<username>", methods=["POST"])
 
 def follow(username):
     if "username" not in session or session["username"] == username:
-        return redirect("/allusers")
+        return redirect("/search")
 
     conn = get_db_connection()
     conn.execute("INSERT OR IGNORE INTO Follows (follower, followee) VALUES (?, ?)",
                      (session["username"], username))
     conn.commit()
     conn.close()
-    return redirect("/allusers")
+    return redirect("/search")
 
 @app.route("/unfollow/<username>", methods=["POST"])
 def unfollow(username):
     if "username" not in session or session["username"] == username:
-        return redirect("/allusers")
+        return redirect("/search")
 
     conn = get_db_connection()
     conn.execute("DELETE FROM Follows WHERE follower = ? AND followee = ?",
                      (session["username"], username))
     conn.commit()
     conn.close()
-    return redirect("/allusers")
+    return redirect("/search")
 
 
 #@app.route("/follow/<followed_username>", methods=["POST"])
