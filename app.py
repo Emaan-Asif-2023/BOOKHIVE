@@ -1,6 +1,6 @@
 import sqlite3
 from flask import Flask, request, render_template, redirect
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
 from flask import url_for,  flash
 
@@ -80,6 +80,8 @@ def register():
                 (username, email, hashed_password)
             )
             conn.commit()
+
+            session["username"] = username
         except sqlite3.IntegrityError:
             return render_template("register.html", message="Username or email already exists.", category="error")
         finally:
