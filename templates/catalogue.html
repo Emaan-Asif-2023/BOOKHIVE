@@ -1,108 +1,119 @@
+{% extends "base2.html" %}
+{% block content %}
+<style>
+    .catalogue-container {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f9f9f9;
+        padding: 40px;
+        margin: 0;
+    }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Book Catalogue</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f9f9f9;
-            padding: 40px;
-            margin: 0;
+    .catalogue-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    .filter-form {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+    }
+
+    .filter-form label {
+        margin-right: 5px;
+        font-weight: 500;
+    }
+
+    .filter-form input, 
+    .filter-form select, 
+    .filter-form button {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .filter-form button {
+        background-color: #1db522;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .book-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .book-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 15px;
+        width: 220px;
+        transition: transform 0.2s;
+        text-align: center;
+    }
+
+    .book-card:hover {
+        transform: scale(1.03);
+    }
+
+    .book-card img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .book-card h3 {
+        margin: 12px 0 6px;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .book-card p {
+        margin: 2px 0;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .book-card a {
+        display: inline-block;
+        margin-top: 10px;
+        text-decoration: none;
+        color: #109214;
+        font-weight: 500;
+    }
+
+    .no-books {
+        text-align: center;
+        color: #888;
+        margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: center;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-
-        form label {
-            margin-right: 5px;
-            font-weight: 500;
-        }
-
-        form input, form select, form button {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        form button {
-            background-color: #1db522;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .book-list {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 25px;
-        }
-
+        
         .book-card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            padding: 15px;
-            width: 220px;
-            transition: transform 0.2s;
-            text-align: center;
-        }
-
-        .book-card:hover {
-            transform: scale(1.03);
-        }
-
-        .book-card img {
             width: 100%;
-            height: 280px;
-            object-fit: cover;
-            border-radius: 6px;
+            max-width: 280px;
         }
+    }
+</style>
 
-        .book-card h3 {
-            margin: 12px 0 6px;
-            font-size: 18px;
-            color: #333;
-        }
+<div class="catalogue-container">
+    <h1 class="catalogue-title">Explore Our Book Catalogue</h1>
 
-        .book-card p {
-            margin: 2px 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .book-card a {
-            display: inline-block;
-            margin-top: 10px;
-            text-decoration: none;
-            color: #1db522;
-            font-weight: 500;
-        }
-
-        .no-books {
-            text-align: center;
-            color: #888;
-            margin-top: 30px;
-        }
-    </style>
-</head>
-<body>
-    <h1>Explore Our Book Catalogue</h1>
-
-    <form method="get" action="/catalogue">
+    <form class="filter-form" method="get" action="/catalogue">
         <label>Genre:</label>
         <input type="text" name="genre" placeholder="e.g. Fantasy">
         <label>Author:</label>
@@ -132,5 +143,5 @@
     {% else %}
     <p class="no-books">No books found with the given filters.</p>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

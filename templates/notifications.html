@@ -1,89 +1,99 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Notifications</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f9fc;
-            margin: 0;
-            padding: 30px;
-            color: #333;
-        }
+{% extends "base2.html" %}
+{% block content %}
+<style>
+    .notifications-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f9fc;
+        padding: 30px;
+        color: #333;
+    }
 
-        .container {
-            max-width: 700px;
-            margin: auto;
-            background-color: white;
-            padding: 25px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
+    .notifications-box {
+        max-width: 700px;
+        margin: auto;
+        background-color: white;
+        padding: 25px 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
 
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    .notifications-title {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        text-align: center;
+    }
 
-        ul {
-            list-style: none;
-            padding: 0;
-        }
+    .notifications-list {
+        list-style: none;
+        padding: 0;
+    }
 
-        li {
-            background-color: #eef3f9;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            border-left: 4px solid #3a76d6;
-            border-radius: 5px;
-        }
+    .notification-item {
+        background-color: #eef3f9;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        border-left: 4px solid #1A4D2E;
+        border-radius: 5px;
+    }
 
-        li strong {
-            color: #1c3d70;
-        }
+    .notification-sender {
+        color: #1c3d70;
+        font-weight: bold;
+    }
 
-        p {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
+    .no-notifications {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
 
-        .back-link {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            text-decoration: none;
-            background-color: #3a76d6;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 5px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #1A4D2E;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 5px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+        transition: background-color 0.2s ease;
+    }
 
-        .back-link:hover {
-            background-color: #2c5aa0;
+    .back-link:hover {
+        background-color: #1A4D2E;
+    }
+
+    @media (max-width: 768px) {
+        .notifications-container {
+            padding: 20px 15px;
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Notifications for {{ current_user }}</h1>
+        
+        .notifications-box {
+            padding: 20px;
+        }
+    }
+</style>
+
+
+    <div class="notifications-box">
+        <h1 class="notifications-title">Notifications for {{ current_user }}</h1>
 
         {% if notifications %}
-            <ul>
+            <ul class="notifications-list">
                 {% for n in notifications %}
-                    <li><strong>{{ n.sendby }}:</strong> {{ n.message }}</li>
+                    <li class="notification-item">
+                        <span class="notification-sender">{{ n.sendby }}:</span> {{ n.message }}
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>No notifications yet.</p>
+            <p class="no-notifications">No notifications yet.</p>
         {% endif %}
 
         <a href="/home" class="back-link">← Back to Home</a>
     </div>
-</body>
-</html>
+
+{% endblock %}
