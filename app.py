@@ -511,7 +511,7 @@ def profile():
         username=user['username'],
         email=user['email'],
         description=user['description'],
-        books_read=user['noOfBooksRead'],
+        books_read=books_read,
         wishlist_count=wishlist_count,
         currently_reading=currently_reading,
         reviews=reviews,
@@ -651,8 +651,8 @@ def view_profile(username):
         ).fetchone()
 
         conn.close()
-
-        return render_template('profile.html',
+        template_to_render = 'profile.html' if current_user == username else 'profile_user.html'
+        return render_template(template_to_render,
             username=profile_user['username'],
             email=profile_user['email'],
             description=profile_user['description'],
@@ -727,6 +727,20 @@ def notifications():
     conn.close()
 
     return render_template("notifications.html", notifications=notifications, current_user=current_user)
+
+@app.route('/top_picks/<username>')
+def view_top_picks(username):
+    current_user = session.get('username')
+    conn = get_db_connection()
+    user = conn.execute('SELECT topPick1, topPick2, topPick3 FROM Users WHERE username = ?', (username,)).fetchone()
+    conn.close()
+
+    if not user:
+        return "User not found", 404
+
+    template = 'top_picks.html' if username == current_user else 'top_picks_user.html'
+    return render_template(template, username=username, owner=username, user=user)
+
 
 @app.route('/top_picks')
 def top_picks():

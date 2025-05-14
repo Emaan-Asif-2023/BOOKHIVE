@@ -1,0 +1,111 @@
+{% extends "base2.html" %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>{{ username }}'s Profile</h1>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number">{{ books_read }}</span>
+                <span class="stat-label">Books Read</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ wishlist_count }}</span>
+                <span class="stat-label">Wishlist</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ currently_reading }}</span>
+                <span class="stat-label">Reading Now</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ followers }}</span>
+                <span class="stat-label">Followers</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ following }}</span>
+                <span class="stat-label">Following</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-details">
+        <div class="detail-section">
+            <h3>About</h3>
+            <p>{{ description if description else "No description yet" }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+        </div>
+
+        <div class="detail-section">
+            <h3>Recent Reviews</h3>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review">
+                    <h4>{{ review['bookname'] }} by {{ review['author'] }}</h4>
+                    <p>{{ review['review'] }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No reviews yet</p>
+            {% endif %}
+        </div>
+    </div>
+    <div style="text-align: center; margin-bottom: 20px;">
+    <a href="{{ url_for('view_top_picks', username=username) }}" 
+       style="padding: 10px 20px; background-color: #669ae8; color: #ffffff; 
+              border-radius: 5px; text-decoration: none; font-weight: bold; margin-right: 20px;">
+        Top Picks
+    </a>
+</div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .stats {
+        display: flex;
+        justify-content: space-around;
+        margin: 1.5rem 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .detail-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .review {
+        background: white;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
