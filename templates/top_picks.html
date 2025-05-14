@@ -1,58 +1,158 @@
 {% extends "base2.html" %}
 {% block content %}
-<div style="max-width: 700px; margin: 40px auto; padding: 30px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<style>
+    :root {
+        --primary-color: #b44759;
+        --text-color: #1f2937;
+        --text-secondary: #6b7280;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --danger: #9c2737;
+    }
+    
+    .top-picks-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--card-bg);
+        border-radius: 0.5rem;
+        box-shadow: var(--shadow);
+    }
 
-    <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Your Top Picks</h2>
+    .top-picks-title {
+        color: var(--primary-color);
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        font-weight: 600;
+    }
 
-    <!-- Update Form -->
-    <form method="POST" action="/update_top_picks">
-        <div style="margin-bottom: 20px;">
-            <label for="topPick1" style="font-weight: 600; color: #333;">Top Pick 1:</label>
-            <input type="text" id="topPick1" name="topPick1" value="{{ user.topPick1 or '' }}" 
-                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+    .book-cards-row {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .book-card {
+        flex: 1;
+        min-width: 250px;
+        background-color: var(--card-bg);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .book-card:hover {
+        transform: translateY(-0.25rem);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .form-group {
+        margin-top: 1rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 0.5rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+
+    .delete-btn {
+        width: 100%;
+        padding: 0.5rem;
+        background-color: var(--danger);
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .book-cards-row {
+            flex-direction: column;
+        }
+        
+        .book-card {
+            min-width: 100%;
+        }
+    }
+</style>
+
+<div class="top-picks-container">
+    <h2 class="top-picks-title">Your Top Picks</h2>
+
+    <div class="book-cards-row">
+        <!-- Top Pick 1 Card -->
+        <div class="book-card">
+            <div class="book-title">Top Pick 1</div>
+            <form method="POST" action="/update_top_picks">
+                <div class="form-group">
+                    <input type="text" name="topPick1" value="{{ user.topPick1 or '' }}" 
+                           class="form-input" placeholder="Enter book title">
+                </div>
+                <button type="submit" class="submit-btn">Update</button>
+            </form>
+            <form method="POST" action="/delete_top_pick/1">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label for="topPick2" style="font-weight: 600; color: #333;">Top Pick 2:</label>
-            <input type="text" id="topPick2" name="topPick2" value="{{ user.topPick2 or '' }}" 
-                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+        <!-- Top Pick 2 Card -->
+        <div class="book-card">
+            <div class="book-title">Top Pick 2</div>
+            <form method="POST" action="/update_top_picks">
+                <div class="form-group">
+                    <input type="text" name="topPick2" value="{{ user.topPick2 or '' }}" 
+                           class="form-input" placeholder="Enter book title">
+                </div>
+                <button type="submit" class="submit-btn">Update</button>
+            </form>
+            <form method="POST" action="/delete_top_pick/2">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
         </div>
 
-        <div style="margin-bottom: 25px;">
-            <label for="topPick3" style="font-weight: 600; color: #333;">Top Pick 3:</label>
-            <input type="text" id="topPick3" name="topPick3" value="{{ user.topPick3 or '' }}" 
-                   style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 6px;">
+        <!-- Top Pick 3 Card -->
+        <div class="book-card">
+            <div class="book-title">Top Pick 3</div>
+            <form method="POST" action="/update_top_picks">
+                <div class="form-group">
+                    <input type="text" name="topPick3" value="{{ user.topPick3 or '' }}" 
+                           class="form-input" placeholder="Enter book title">
+                </div>
+                <button type="submit" class="submit-btn">Update</button>
+            </form>
+            <form method="POST" action="/delete_top_pick/3">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
         </div>
-
-        <button type="submit" style="
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;">
-            Update Picks
-        </button>
-    </form>
-
-    <hr style="margin: 40px 0; border-top: 1px solid #ddd;">
-
-    <!-- Delete Forms -->
-    <div style="display: flex; flex-direction: column; gap: 15px;">
-        <form method="POST" action="/delete_top_pick/1" style="display: inline;">
-            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 1</button>
-        </form>
-
-        <form method="POST" action="/delete_top_pick/2" style="display: inline;">
-            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 2</button>
-        </form>
-
-        <form method="POST" action="/delete_top_pick/3" style="display: inline;">
-            <button type="submit" style="width: 100%; padding: 10px; background-color: #dc3545; color: white; border: none; border-radius: 6px; font-size: 14px;">Delete Top Pick 3</button>
-        </form>
     </div>
 </div>
 {% endblock %}

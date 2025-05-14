@@ -113,7 +113,21 @@
             </form>
 
                 <!-- View Ratings button -->
-                <a href="/view_ratings/{{ book['bookname'] }}" class="btn-3d">View Ratings</a>
+<a href="/view_ratings/{{ book['bookname'] }}" 
+   style="display: inline-block;
+          padding: 10px 16px;
+          background-color: #5bc0de;
+          color: white;
+          text-decoration: none;
+          border-radius: 6px;
+          font-size: 14px;
+          margin-right: 10px;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border: none;
+          cursor: pointer;">
+    <i class="fas fa-star" style="margin-right: 5px;"></i>View Ratings
+</a>
         </div>
 
         <div class="star-rating" id="starRating">

@@ -6,7 +6,12 @@
 
     <form method="POST" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 30px;">
         <input type="text" name="search_term" placeholder="Search by username or email" style="flex: 1; max-width: 400px; padding: 10px 14px; border: 1px solid #ccc; border-radius: 4px;">
-        <button type="submit" style="padding: 10px 18px; background-color: #34db58; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+        <button type="submit" style="padding: 10px 18px; background-color: #27d44c; color: white; border: none; border-radius: 4px; cursor: pointer;">Search</button>
+        <a href="{{ url_for('chat') }}"
+        style="padding: 10px 20px; background-color: #dfd21e; color: white;
+            border-radius: 5px; text-decoration: none; font-weight: bold; cursor: pointer;">
+        Chat
+    </a>
     </form>
 
     <div class="user-list" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
