@@ -148,13 +148,39 @@
 <!-- Star Rating Script -->
 <script>
     const stars = document.querySelectorAll('#starRating i');
+    const userRating = parseInt("{{ user_rating | default(0, true) }}");
+
+    function updateStars(rating) {
+        stars.forEach((s, i) => {
+            s.classList.toggle('filled', i < rating);
+        });
+    }
+
+    // Initially fill based on existing rating
+    updateStars(userRating);
+
+    // On click, send new rating to server
     stars.forEach(star => {
         star.addEventListener('click', () => {
             const rating = parseInt(star.getAttribute('data-value'));
-            stars.forEach((s, i) => {
-                s.classList.toggle('filled', i < rating);
+            updateStars(rating);
+
+            fetch("/star_rating", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    bookname: "{{ book['bookname'] }}",
+                    stars: rating
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== "success") {
+                    alert("Error saving rating.");
+                }
             });
-            // Optional: send rating to server here
         });
     });
 </script>

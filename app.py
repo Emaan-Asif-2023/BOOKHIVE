@@ -206,12 +206,26 @@ def edit_cover(bookname):
     #return render_template("edit_cover.html", bookname=bookname)
 @app.route('/book/<bookname>')
 def show_book(bookname):
+    if "username" not in session:
+        return redirect("/login")
+
+    current_user = session["username"]
     conn = get_db_connection()
-    book = conn.execute('SELECT * FROM Books WHERE bookname = ?', (bookname,)).fetchone()
-    conn.close()
-    if book is None:
+
+    users = conn.execute("SELECT username FROM Users WHERE username != ?", (current_user,)).fetchall()
+
+    book = conn.execute("SELECT * FROM Books WHERE bookname = ?", (bookname,)).fetchone()
+    if not book:
+        conn.close()
         return "Book not found", 404
-    return render_template('bookpage.html', book=book)
+
+    # Get current user's rating for this book
+    rating = conn.execute("SELECT stars FROM Ratings WHERE username = ? AND bookname = ?", (current_user, bookname)).fetchone()
+    user_rating = rating["stars"] if rating else 0
+
+    conn.close()
+
+    return render_template("bookpage.html", book=book, user_rating=user_rating)
 
 @app.route("/reading_lists", methods=["GET", "POST"])
 def reading_lists():
@@ -784,6 +798,68 @@ def rate_book(bookname):
     flash("Your rating has been submitted!")
     return redirect(url_for("book_page", bookname=bookname))
 
+@app.route('/search_books', methods=['GET', 'POST'])
+def search_books():
+    results = []
+    if request.method == 'POST':
+        query = request.form.get('query')
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        sql_query = """
+        SELECT * FROM Books
+        WHERE lower(bookname) LIKE ?
+        OR lower(author) LIKE ?
+        OR lower(genre) LIKE ?
+        """
+
+        search_term = f"%{query.lower()}%"
+        cur.execute(sql_query, (search_term, search_term, search_term))
+        results = cur.fetchall()
+        conn.close()
+
+    return render_template('searchbook.html', results=results)
+
+@app.route('/star_rating', methods=['POST'])
+def star_rating():
+    if "username" not in session:
+        return {"status": "error", "message": "Login required"}, 401
+
+    current_user = session["username"]
+    data = request.get_json()
+    bookname = data.get("bookname")
+    stars = data.get("stars")
+
+    if not bookname or not stars or not (1 <= stars <= 5):
+        return {"status": "error", "message": "Invalid data"}, 400
+
+    try:
+        conn = get_db_connection()
+        existing = conn.execute(
+            "SELECT * FROM Ratings WHERE username = ? AND bookname = ?",
+            (current_user, bookname)
+        ).fetchone()
+
+        if existing:
+            conn.execute("UPDATE Ratings SET stars = ? WHERE username = ? AND bookname = ?",
+                         (stars, current_user, bookname))
+        else:
+            conn.execute("INSERT INTO Ratings (username, bookname, stars) VALUES (?, ?, ?)",
+                         (current_user, bookname, stars))
+
+        # Optional: Update Books table's average and count
+        rating_data = conn.execute("SELECT AVG(stars) as avg, COUNT(*) as count FROM Ratings WHERE bookname = ?",(bookname,)).fetchone()
+        conn.execute("UPDATE Books SET averageRating = ?, noOfRatings = ? WHERE bookname = ?",
+                     (rating_data["avg"], rating_data["count"], bookname))
+
+        conn.commit()
+        conn.close()
+
+        return {"status": "success", "message": "Rating saved"}
+    
+    except Exception as e:
+        print(f"Error in /star_rating: {e}")
+        return {"status": "error", "message": "Server error"}, 500
 
 if __name__ == "__main__":
     app.run(debug=True)
