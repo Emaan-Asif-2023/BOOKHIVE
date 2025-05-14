@@ -80,6 +80,11 @@
         font-size: 0.9rem;
         cursor: pointer;
         margin-top: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .submit-btn:hover {
+        background-color: #9c3948;
     }
 
     .delete-btn {
@@ -92,6 +97,11 @@
         font-size: 0.9rem;
         cursor: pointer;
         margin-top: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .delete-btn:hover {
+        background-color: #7a1f2c;
     }
 
     @media (max-width: 768px) {
@@ -113,6 +123,8 @@
         <div class="book-card">
             <div class="book-title">Top Pick 1</div>
             <form method="POST" action="/update_top_picks">
+                <input type="hidden" name="topPick2" value="{{ user.topPick2 or '' }}">
+                <input type="hidden" name="topPick3" value="{{ user.topPick3 or '' }}">
                 <div class="form-group">
                     <input type="text" name="topPick1" value="{{ user.topPick1 or '' }}" 
                            class="form-input" placeholder="Enter book title">
@@ -128,6 +140,8 @@
         <div class="book-card">
             <div class="book-title">Top Pick 2</div>
             <form method="POST" action="/update_top_picks">
+                <input type="hidden" name="topPick1" value="{{ user.topPick1 or '' }}">
+                <input type="hidden" name="topPick3" value="{{ user.topPick3 or '' }}">
                 <div class="form-group">
                     <input type="text" name="topPick2" value="{{ user.topPick2 or '' }}" 
                            class="form-input" placeholder="Enter book title">
@@ -143,6 +157,8 @@
         <div class="book-card">
             <div class="book-title">Top Pick 3</div>
             <form method="POST" action="/update_top_picks">
+                <input type="hidden" name="topPick1" value="{{ user.topPick1 or '' }}">
+                <input type="hidden" name="topPick2" value="{{ user.topPick2 or '' }}">
                 <div class="form-group">
                     <input type="text" name="topPick3" value="{{ user.topPick3 or '' }}" 
                            class="form-input" placeholder="Enter book title">

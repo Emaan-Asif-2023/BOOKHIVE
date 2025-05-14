@@ -24,36 +24,84 @@
         margin-bottom: 40px;
     }
 
-        li {
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
+    .book-card {
+        background-color: #f8f8f8;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
 
-        li:hover {
-            transform: translateY(-3px);
-        }
+    .book-card:hover {
+        transform: scale(1.02);
+    }
 
-        p {
-            text-align: center;
-            color: #6b7280;
-        }
-    </style>
-</head>
-<body>
-    <h2>Your Book Recommendations</h2>
-    {% if books %}
-    <ul>
-        {% for book in books %}
-        <li>{{ book[0] }} by {{ book[1] }} (Genre: {{ book[2] }}, Year: {{ book[3] }})</li>
+    .book-cover {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+    }
 
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No recommendations available at the moment.</p>
-    {% endif %}
-</body>
-</html>
+    .book-info {
+        padding: 12px;
+        text-align: center;
+    }
+
+    .book-info h3 {
+        margin: 10px 0 5px;
+        font-size: 16px;
+    }
+
+    .book-info p {
+        margin: 0;
+        color: #777;
+    }
+
+    .genre {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 13px;
+        background-color: #f3e0d1;
+        color: #be6674;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+
+    .empty-state {
+        text-align: center;
+        margin-top: 60px;
+        color: #888;
+        font-size: 18px;
+    }
+</style>
+
+<h2 class="recommendations-header">Your Personalized Book Recommendations</h2>
+<p class="recommendations-subtitle">Based on your reading preferences and activity</p>
+
+{% if books %}
+<div class="book-grid">
+    {% for book in books %}
+    <a href="{{ url_for('show_book', bookname=book['bookname']) }}" class="book-card">
+        <img src="{{ book['cover_url'] or '/static/default-cover.jpg' }}"
+             class="book-cover"
+             alt="{{ book['bookname'] }}">
+        
+        <div class="book-info">
+            <h3>{{ book['bookname'] }}</h3>
+            <p>{{ book['author'] }}</p>
+            {% if book['genre'] %}
+            <span class="genre">{{ book['genre'] }}</span>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>We couldn't find any recommendations for you at the moment.</p>
+    <p>Try rating more books to get better suggestions!</p>
+</div>
+{% endif %}
+{% endblock %}

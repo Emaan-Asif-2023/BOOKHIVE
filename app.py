@@ -121,26 +121,34 @@ def logout():
     return redirect("/register")
 
 
-@app.route("/home")
+@app.route("/home", methods=["GET", "POST"])
 def homepage():
     conn = get_db_connection()
-    
-    # Safely get books even if cover_url column doesn't exist
-    try:
-        books = conn.execute("""
+    cur = conn.cursor()
+
+    if request.method == "POST":
+        query = request.form.get("search", "").lower()
+        sql_query = """
+            SELECT bookname, author, genre,
+                   COALESCE(cover_url, '/static/default-cover.jpg') AS safe_cover
+            FROM Books
+            WHERE LOWER(bookname) LIKE ?
+               OR LOWER(author) LIKE ?
+               OR LOWER(genre) LIKE ?
+        """
+        wildcard = f"%{query}%"
+        cur.execute(sql_query, (wildcard, wildcard, wildcard))
+        books = cur.fetchall()
+    else:
+        books = cur.execute("""
             SELECT bookname, author, genre,
                    COALESCE(cover_url, '/static/default-cover.jpg') AS safe_cover
             FROM Books
         """).fetchall()
-    except sqlite3.OperationalError:  # If cover_url column is missing
-        books = conn.execute("""
-            SELECT bookname, author, genre,
-                   '/static/default-cover.jpg' AS safe_cover
-            FROM Books
-        """).fetchall()
-    
+
     conn.close()
     return render_template("home.html", books=books)
+
 
 
 @app.route("/search", methods=["GET", "POST"])
