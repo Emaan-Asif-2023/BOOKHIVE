@@ -308,7 +308,7 @@ VALUES
 ('The Return of the King', 'J.R.R. Tolkien', 'Fantasy', 1955, 'The final battle for Middle-earth and the destruction of the Ring.', 4.9, 460, 'https://covers.openlibrary.org/b/isbn/9780261102378-L.jpg'),
 ('A Study in Scarlet', 'Arthur Conan Doyle', 'Mystery', 1887, 'The first Sherlock Holmes mystery, introducing Holmes and Watson.', 4.7, 310, 'https://covers.openlibrary.org/b/isbn/9780140439083-L.jpg'),
 ('The Sign of the Four', 'Arthur Conan Doyle', 'Mystery', 1890, 'Holmes investigates a stolen treasure and a mysterious pact.', 4.6, 300, 'https://covers.openlibrary.org/b/isbn/9780140439076-L.jpg'),
-('The Adventures of Sherlock Holmes', 'Arthur Conan Doyle', 'Mystery', 1892, 'A collection of Holmes’s most famous cases.', 4.8, 350, ''),
+--('The Adventures of Sherlock Holmes', 'Arthur Conan Doyle', 'Mystery', 1892, 'A collection of Holmes’s most famous cases.', 4.8, 350, 'https://covers.openlibrary.org/b/isbn/9780441104024-L.jpg'),
 ('The Hound of the Baskervilles', 'Arthur Conan Doyle', 'Mystery', 1902, 'Holmes investigates a legendary hound haunting the moors.', 4.9, 370, 'https://covers.openlibrary.org/b/isbn/9780141034324-L.jpg'),
 ('The Lion, the Witch and the Wardrobe', 'C.S. Lewis', 'Fantasy', 1950, 'Four children discover a magical world ruled by an evil witch.', 4.8, 400, 'https://covers.openlibrary.org/b/isbn/9780064471046-L.jpg'),
 ('Prince Caspian', 'C.S. Lewis', 'Fantasy', 1951, 'The Pevensie children return to help Prince Caspian reclaim his throne.', 4.5, 380, 'https://covers.openlibrary.org/b/isbn/9780064471053-L.jpg'),
@@ -318,7 +318,7 @@ VALUES
 ('Dune', 'Frank Herbert', 'Science Fiction', 1965, 'Paul Atreides leads a rebellion on the desert planet Arrakis.', 4.6, 390, 'https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg'),
 ('Dune Messiah', 'Frank Herbert', 'Science Fiction', 1969, 'Paul Atreides struggles with his role as Emperor and prophet.', 4.4, 320, 'https://covers.openlibrary.org/b/isbn/9780441172696-L.jpg'),
 ('Children of Dune', 'Frank Herbert', 'Science Fiction', 1976, 'Paul’s children face political and religious turmoil.', 4.3, 310, 'https://covers.openlibrary.org/b/isbn/9780441104024-L.jpg'),
-('God Emperor of Dune', 'Frank Herbert', 'Science Fiction', 1981, 'Leto II rules the galaxy as a tyrant to ensure humanity’s survival.', 4.2, 280, ''),
+--('God Emperor of Dune', 'Frank Herbert', 'Science Fiction', 1981, 'Leto II rules the galaxy as a tyrant to ensure humanity’s survival.', 4.2, 280, ''),
 ('Heretics of Dune', 'Frank Herbert', 'Science Fiction', 1984, 'A new order arises in a galaxy reshaped by Leto II’s legacy.', 4.1, 260, 'https://covers.openlibrary.org/b/isbn/9780441328000-L.jpg'),
 ('The Giver', 'Lois Lowry', 'Dystopian', 1993, 'A boy discovers the truth behind his perfect world.', 4.6, 240, 'https://covers.openlibrary.org/b/isbn/0544336267-L.jpg'),
 ('Chapterhouse: Dune', 'Frank Herbert', 'Science Fiction', 1985, 'The Bene Gesserit face threats from within and beyond.', 4.0, 250, 'https://covers.openlibrary.org/b/isbn/9780441102679-L.jpg');
